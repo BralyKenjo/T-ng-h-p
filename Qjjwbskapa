@@ -314,4 +314,4 @@ AddScriptButton(saePage, "Night Hub V1", function()
 end)
 
 -- Mặc định mở trang Blox Fruit đầu tiên
-bfPage.Visible = true
+bfPage.Visible = false
