@@ -290,11 +290,10 @@ local function CreateMenuButton(name, targetPage)
         TweenService:Create(btn, TweenInfo.new(0.15), {
             BackgroundColor3 = Color3.fromRGB(35, 35, 50),
             TextColor3 = Color3.fromRGB(0, 255, 255),
-            Size = UDim2.new(1, -9, 0, 34) -- Hiệu ứng lún nhỏ lại một chút
+            Size = UDim2.new(1, -9, 0, 34)
         }):Play()
         
         task.wait(0.15)
-        -- Phục hồi kích thước nhưng giữ nguyên màu trạng thái được chọn
         TweenService:Create(btn, TweenInfo.new(0.15), {
             Size = UDim2.new(1, -5, 0, 36)
         }):Play()
@@ -305,14 +304,10 @@ end
 CreateMenuButton("Blox Fruit", bfPage)
 CreateMenuButton("Steal An Egg", saePage)
 
--- Ví dụ cách thêm nút script con vào trong mục Steal An Egg:
--- AddScriptButton(saePage, "Night Hub V2", function()
---     loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/StealAnEggs.luau"))()
--- end)
+-- Thêm script Night Hub V2 vào bên trong mục Steal An Egg
+AddScriptButton(saePage, "Night Hub V2", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/StealAnEggs.luau"))()
+end)
 
 -- Mặc định mở trang Blox Fruit đầu tiên
 bfPage.Visible = true
--- Thêm script vào bên trong mục Steal An Egg
-AddScriptButton(saePage, "Steal An Eggs", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/StealAnEggs.luau"))()
-end)
