@@ -1,0 +1,281 @@
+-- [[ BRAKYO SCRIPT HUB - ROUND ICON ANIMATION ]]
+local CoreGui = game:GetService("CoreGui")
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local Player = Players.LocalPlayer
+
+-- Xóa UI cũ nếu đã bật trước đó để tránh bị trùng lặp
+if CoreGui:FindFirstChild("BrakyoHub") then
+    CoreGui.BrakyoHub:Destroy()
+end
+
+-- Tạo ScreenGui chính
+local BrakyoHub = Instance.new("ScreenGui")
+BrakyoHub.Name = "BrakyoHub"
+BrakyoHub.Parent = CoreGui
+BrakyoHub.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+-- 1. NÚT THU NHỎ DẠNG ICON TRÒN (Chữ "BK" màu Cyan, background Cyan trong suốt)
+local MinButton = Instance.new("TextButton")
+MinButton.Name = "MinButton"
+MinButton.Parent = BrakyoHub
+-- Màu Cyan trong suốt (RGB: 0, 255, 255 với độ trong suốt 0.4)
+MinButton.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
+MinButton.BackgroundTransparency = 0.4
+MinButton.BorderSizePixel = 0
+MinButton.Position = UDim2.new(0.05, 0, 0.1, 0)
+MinButton.Size = UDim2.new(0, 48, 0, 48) -- Kích thước hình tròn đều
+MinButton.Font = Enum.Font.FredokaOne -- Font chữ nghệ thuật, bo tròn nhìn rất đẹp và hiện đại
+MinButton.Text = "BK"
+MinButton.TextColor3 = Color3.fromRGB(255, 255, 255) -- Chữ trắng nổi bật trên nền Cyan
+MinButton.TextSize = 18
+MinButton.Draggable = true
+MinButton.Visible = false
+MinButton.Active = true
+
+-- Bo góc tối đa để tạo thành hình tròn hoàn hảo
+local MinCorner = Instance.new("UICorner")
+MinCorner.CornerRadius = UDim.new(1, 0)
+MinCorner.Parent = MinButton
+
+-- Viền phát sáng cho icon tròn
+local MinStroke = Instance.new("UIStroke")
+MinStroke.Parent = MinButton
+MinStroke.Color = Color3.fromRGB(0, 255, 255)
+MinStroke.Transparency = 0.2
+MinStroke.Thickness = 2
+
+-- 2. MAIN FRAME (Khung menu chính)
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = BrakyoHub
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+MainFrame.BorderSizePixel = 0
+MainFrame.Position = UDim2.new(0.5, -275, 0.5, -175)
+MainFrame.Size = UDim2.new(0, 550, 0, 350)
+MainFrame.Draggable = true
+MainFrame.Active = true
+MainFrame.ClipsDescendants = true
+
+local MainCorner = Instance.new("UICorner")
+MainCorner.CornerRadius = UDim.new(0, 10)
+MainCorner.Parent = MainFrame
+
+-- Viền phát sáng nhẹ cho MainFrame
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Parent = MainFrame
+MainStroke.Color = Color3.fromRGB(45, 45, 60)
+MainStroke.Thickness = 1.5
+
+-- Tiêu đề Hub
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Name = "TitleLabel"
+TitleLabel.Parent = MainFrame
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Position = UDim2.new(0, 18, 0, 12)
+TitleLabel.Size = UDim2.new(0, 150, 0, 30)
+TitleLabel.Font = Enum.Font.GothamBold
+TitleLabel.Text = "⚡ BRAKYO HUB"
+TitleLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
+TitleLabel.TextSize = 15
+TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+-- Nút Thu Nhỏ (Dấu "-")
+local MinimizeBtn = Instance.new("TextButton")
+MinimizeBtn.Name = "MinimizeBtn"
+MinimizeBtn.Parent = MainFrame
+MinimizeBtn.BackgroundTransparency = 1
+MinimizeBtn.Position = UDim2.new(1, -65, 0, 12)
+MinimizeBtn.Size = UDim2.new(0, 25, 0, 25)
+MinimizeBtn.Font = Enum.Font.GothamBold
+MinimizeBtn.Text = "-"
+MinimizeBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
+MinimizeBtn.TextSize = 18
+
+-- Nút Đóng hẳn (X)
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Name = "CloseBtn"
+CloseBtn.Parent = MainFrame
+CloseBtn.BackgroundTransparency = 1
+CloseBtn.Position = UDim2.new(1, -35, 0, 12)
+CloseBtn.Size = UDim2.new(0, 25, 0, 25)
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.Text = "X"
+CloseBtn.TextColor3 = Color3.fromRGB(200, 80, 80)
+CloseBtn.TextSize = 14
+
+CloseBtn.MouseButton1Click:Connect(function()
+    local tween = TweenService:Create(MainFrame, TweenInfo.new(0.2), {Size = UDim2.new(0, 0, 0, 0)})
+    tween:Play()
+    tween.Completed:Wait()
+    BrakyoHub:Destroy()
+end)
+
+-- Hàm Animation mở/đóng mượt mà qua lại với Icon tròn
+local function animatePopup(show)
+    if show then
+        MinButton.Visible = false
+        MainFrame.Visible = true
+        MainFrame.Size = UDim2.new(0, 0, 0, 0)
+        local tween = TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0, 550, 0, 350)})
+        tween:Play()
+    else
+        local tween = TweenService:Create(MainFrame, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0)})
+        tween:Play()
+        tween.Completed:Wait()
+        MainFrame.Visible = false
+        MinButton.Visible = true
+    end
+end
+
+MinimizeBtn.MouseButton1Click:Connect(function()
+    animatePopup(false)
+end)
+
+MinButton.MouseButton1Click:Connect(function()
+    animatePopup(true)
+end)
+
+-- Thanh tìm kiếm (Search Bar)
+local SearchBox = Instance.new("TextBox")
+SearchBox.Name = "SearchBox"
+SearchBox.Parent = MainFrame
+SearchBox.BackgroundColor3 = Color3.fromRGB(22, 22, 30)
+SearchBox.BorderSizePixel = 0
+SearchBox.Position = UDim2.new(0, 180, 0, 12)
+SearchBox.Size = UDim2.new(0, 285, 0, 28)
+SearchBox.Font = Enum.Font.Gotham
+SearchBox.PlaceholderText = "Tìm kiếm script..."
+SearchBox.Text = ""
+SearchBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+SearchBox.TextSize = 13
+SearchBox.ClearTextOnFocus = false
+
+local SearchCorner = Instance.new("UICorner")
+SearchCorner.CornerRadius = UDim.new(0, 6)
+SearchCorner.Parent = SearchBox
+
+-- Thanh menu bên trái
+local LeftMenu = Instance.new("ScrollingFrame")
+LeftMenu.Name = "LeftMenu"
+LeftMenu.Parent = MainFrame
+LeftMenu.Active = true
+LeftMenu.BackgroundTransparency = 1
+LeftMenu.Position = UDim2.new(0, 12, 0, 55)
+LeftMenu.Size = UDim2.new(0, 155, 0, 280)
+LeftMenu.CanvasSize = UDim2.new(0, 0, 0, 0)
+LeftMenu.ScrollBarThickness = 2
+
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.Parent = LeftMenu
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0, 6)
+
+-- Khung chứa nội dung bên phải (đang để trống sạch sẽ)
+local RightContainer = Instance.new("Frame")
+RightContainer.Name = "RightContainer"
+RightContainer.Parent = MainFrame
+RightContainer.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
+RightContainer.BorderSizePixel = 0
+RightContainer.Position = UDim2.new(0, 180, 0, 55)
+RightContainer.Size = UDim2.new(0, 358, 0, 280)
+
+local RightCorner = Instance.new("UICorner")
+RightCorner.CornerRadius = UDim.new(0, 6)
+RightCorner.Parent = RightContainer
+
+-- Hàm tạo các trang nội dung (Tabs)
+local Pages = {}
+local function CreateTab(name)
+    local Page = Instance.new("ScrollingFrame")
+    Page.Name = name .. "Page"
+    Page.Parent = RightContainer
+    Page.Active = true
+    Page.BackgroundTransparency = 1
+    Page.Size = UDim2.new(1, 0, 1, 0)
+    Page.CanvasSize = UDim2.new(0, 0, 0, 0)
+    Page.ScrollBarThickness = 4
+    Page.Visible = false
+    
+    local Layout = Instance.new("UIListLayout")
+    Layout.Parent = Page
+    Layout.SortOrder = Enum.SortOrder.LayoutOrder
+    Layout.Padding = UDim.new(0, 6)
+    
+    Pages[name] = Page
+    return Page
+end
+
+-- Tạo sẵn 2 trang trống: Blox Fruit và Steal An Egg
+local bfPage = CreateTab("Blox Fruit")
+local saePage = CreateTab("Steal An Egg")
+
+-- Hàm phụ trợ để sau này thêm nút script
+local function AddScriptButton(targetPage, scriptName, callback)
+    local btn = Instance.new("TextButton")
+    btn.Parent = targetPage
+    btn.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    btn.Size = UDim2.new(1, -10, 0, 36)
+    btn.Font = Enum.Font.GothamSemibold
+    btn.Text = "  " .. scriptName
+    btn.TextColor3 = Color3.fromRGB(230, 230, 230)
+    btn.TextSize = 13
+    btn.TextXAlignment = Enum.TextXAlignment.Left
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 6)
+    corner.Parent = btn
+    
+    btn.MouseButton1Click:Connect(function()
+        pcall(callback)
+    end)
+    
+    targetPage.CanvasSize = UDim2.new(0, 0, 0, targetPage.UIListLayout.AbsoluteContentSize.Y + 10)
+end
+
+-- Tính năng tìm kiếm động
+SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
+    local text = SearchBox.Text:lower()
+    for _, page in pairs(Pages) do
+        for _, child in pairs(page:GetChildren()) do
+            if child:IsA("TextButton") then
+                if text == "" or child.Text:lower():find(text) then
+                    child.Visible = true
+                else
+                    child.Visible = false
+                end
+            end
+        end
+    end
+end)
+
+-- Hàm tạo nút bấm ở menu bên trái
+local function CreateMenuButton(name, targetPage)
+    local btn = Instance.new("TextButton")
+    btn.Parent = LeftMenu
+    btn.BackgroundColor3 = Color3.fromRGB(22, 22, 30)
+    btn.Size = UDim2.new(1, -5, 0, 36)
+    btn.Font = Enum.Font.GothamMedium
+    btn.Text = "  " .. name
+    btn.TextColor3 = Color3.fromRGB(170, 170, 190)
+    btn.TextSize = 13
+    btn.TextXAlignment = Enum.TextXAlignment.Left
+    
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 6)
+    corner.Parent = btn
+    
+    btn.MouseButton1Click:Connect(function()
+        for _, p in pairs(Pages) do
+            p.Visible = false
+        end
+        targetPage.Visible = true
+    end)
+end
+
+-- Tạo 2 nút menu trái
+CreateMenuButton("Blox Fruit", bfPage)
+CreateMenuButton("Steal An Egg", saePage)
+
+-- Mặc định mở trang Blox Fruit đầu tiên
+bfPage.Visible = true
