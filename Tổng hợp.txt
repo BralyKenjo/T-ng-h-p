@@ -4,18 +4,15 @@ local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local Player = Players.LocalPlayer
 
--- Xóa UI cũ nếu đã bật trước đó để tránh bị trùng lặp
 if CoreGui:FindFirstChild("BrakyoHub") then
     CoreGui.BrakyoHub:Destroy()
 end
 
--- Tạo ScreenGui chính
 local BrakyoHub = Instance.new("ScreenGui")
 BrakyoHub.Name = "BrakyoHub"
 BrakyoHub.Parent = CoreGui
 BrakyoHub.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- ==================== HỆ THỐNG GET KEY (12 GIỜ) ====================
 local ValidKeys = {
     ["O5J6sql"] = true,
     ["6lhq071K"] = true,
@@ -25,9 +22,8 @@ local ValidKeys = {
 }
 
 local FileName = "BrakyoHub_KeyData.json"
-local KeyDuration = 12 * 60 * 60 -- 12 giờ tính bằng giây
+local KeyDuration = 12 * 60 * 60
 
--- Hàm kiểm tra xem key đã lưu còn hạn hay không
 local function CheckSavedKey()
     if not (readfile and writefile and isfile and delfile) then return false end
     if isfile(FileName) then
@@ -36,16 +32,15 @@ local function CheckSavedKey()
         end)
         if success and data and data.ExpireTime then
             if os.time() < data.ExpireTime then
-                return true -- Key vẫn còn hạn
+                return true
             else
-                delfile(FileName) -- Hết hạn thì xóa file lưu cũ
+                delfile(FileName)
             end
         end
     end
     return false
 end
 
--- Khung Key System (Giao diện nhập key đầu tiên)
 local KeySystemFrame = Instance.new("Frame")
 KeySystemFrame.Name = "KeySystemFrame"
 KeySystemFrame.Parent = BrakyoHub
@@ -66,7 +61,6 @@ KeyStroke.Parent = KeySystemFrame
 KeyStroke.Color = Color3.fromRGB(0, 255, 255)
 KeyStroke.Thickness = 1.5
 
--- Tiêu đề Key System
 local KeyTitle = Instance.new("TextLabel")
 KeyTitle.Parent = KeySystemFrame
 KeyTitle.BackgroundTransparency = 1
@@ -77,7 +71,6 @@ KeyTitle.Text = "⚡ BRAKYO HUB - KEY SYSTEM"
 KeyTitle.TextColor3 = Color3.fromRGB(0, 255, 255)
 KeyTitle.TextSize = 16
 
--- Ô nhập Key (TextBox)
 local KeyBox = Instance.new("TextBox")
 KeyBox.Parent = KeySystemFrame
 KeyBox.BackgroundColor3 = Color3.fromRGB(22, 22, 30)
@@ -95,7 +88,6 @@ local KeyBoxCorner = Instance.new("UICorner")
 KeyBoxCorner.CornerRadius = UDim.new(0, 6)
 KeyBoxCorner.Parent = KeyBox
 
--- Nút Xác Nhận Key (Submit)
 local SubmitBtn = Instance.new("TextButton")
 SubmitBtn.Parent = KeySystemFrame
 SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
@@ -110,7 +102,6 @@ local SubmitCorner = Instance.new("UICorner")
 SubmitCorner.CornerRadius = UDim.new(0, 6)
 SubmitCorner.Parent = SubmitBtn
 
--- Nút Lấy Link Key (Get Key)
 local GetKeyBtn = Instance.new("TextButton")
 GetKeyBtn.Parent = KeySystemFrame
 GetKeyBtn.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
@@ -125,7 +116,6 @@ local GetKeyCorner = Instance.new("UICorner")
 GetKeyCorner.CornerRadius = UDim.new(0, 6)
 GetKeyCorner.Parent = GetKeyBtn
 
--- Thông báo trạng thái Key (Sai/Đúng)
 local StatusLabel = Instance.new("TextLabel")
 StatusLabel.Parent = KeySystemFrame
 StatusLabel.BackgroundTransparency = 1
@@ -136,7 +126,6 @@ StatusLabel.Text = ""
 StatusLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
 StatusLabel.TextSize = 12
 
--- Chức năng nút Lấy Key với link yêu cầu
 GetKeyBtn.MouseButton1Click:Connect(function()
     local link = "https://link4sub.com/DLRKEw8ev5"
     if setclipboard then
@@ -145,12 +134,10 @@ GetKeyBtn.MouseButton1Click:Connect(function()
         StatusLabel.Text = "Đã sao chép link lấy key vào Clipboard!"
     else
         StatusLabel.TextColor3 = Color3.fromRGB(255, 80, 80)
-        StatusLabel.Text = "Executor không hỗ trợ copy, link: " .. link
+        StatusLabel.Text = "Link lấy key: " .. link
     end
 end)
--- ==========================================================
 
--- 1. NÚT THU NHỎ DẠNG ICON TRÒN
 local MinButton = Instance.new("TextButton")
 MinButton.Name = "MinButton"
 MinButton.Parent = BrakyoHub
@@ -177,7 +164,6 @@ MinStroke.Color = Color3.fromRGB(0, 255, 255)
 MinStroke.Transparency = 0.2
 MinStroke.Thickness = 2
 
--- 2. MAIN FRAME (Khung menu chính)
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
 MainFrame.Parent = BrakyoHub
@@ -199,7 +185,6 @@ MainStroke.Parent = MainFrame
 MainStroke.Color = Color3.fromRGB(45, 45, 60)
 MainStroke.Thickness = 1.5
 
--- Hàm tạo các trang nội dung (Tabs) trước để tránh lỗi tham chiếu
 local RightContainer = Instance.new("Frame")
 RightContainer.Name = "RightContainer"
 RightContainer.Parent = MainFrame
@@ -236,14 +221,12 @@ end
 local bfPage = CreateTab("Blox Fruit")
 local saePage = CreateTab("Steal An Egg")
 
--- Kiểm tra nếu đã có key hợp lệ lưu từ trước trong vòng 12 giờ
 if CheckSavedKey() then
     KeySystemFrame:Destroy()
     MainFrame.Visible = true
     bfPage.Visible = true
 end
 
--- Sự kiện xác nhận Key và lưu thời gian hết hạn (12h) vào file
 SubmitBtn.MouseButton1Click:Connect(function()
     local enteredKey = KeyBox.Text
     if ValidKeys[enteredKey] then
@@ -266,7 +249,6 @@ SubmitBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- Tiêu đề Hub
 local TitleLabel = Instance.new("TextLabel")
 TitleLabel.Name = "TitleLabel"
 TitleLabel.Parent = MainFrame
@@ -279,7 +261,6 @@ TitleLabel.TextColor3 = Color3.fromRGB(0, 255, 255)
 TitleLabel.TextSize = 15
 TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 
--- Nút Thu Nhỏ (Dấu "-")
 local MinimizeBtn = Instance.new("TextButton")
 MinimizeBtn.Name = "MinimizeBtn"
 MinimizeBtn.Parent = MainFrame
@@ -291,7 +272,6 @@ MinimizeBtn.Text = "-"
 MinimizeBtn.TextColor3 = Color3.fromRGB(180, 180, 180)
 MinimizeBtn.TextSize = 18
 
--- Nút Đóng hẳn (X)
 local CloseBtn = Instance.new("TextButton")
 CloseBtn.Name = "CloseBtn"
 CloseBtn.Parent = MainFrame
@@ -310,7 +290,6 @@ CloseBtn.MouseButton1Click:Connect(function()
     BrakyoHub:Destroy()
 end)
 
--- Hàm Animation mở/đóng mượt mà qua lại với Icon tròn
 local function animatePopup(show)
     if show then
         MinButton.Visible = false
@@ -335,7 +314,6 @@ MinButton.MouseButton1Click:Connect(function()
     animatePopup(true)
 end)
 
--- Thanh tìm kiếm (Search Bar)
 local SearchBox = Instance.new("TextBox")
 SearchBox.Name = "SearchBox"
 SearchBox.Parent = MainFrame
@@ -354,7 +332,6 @@ local SearchCorner = Instance.new("UICorner")
 SearchCorner.CornerRadius = UDim.new(0, 6)
 SearchCorner.Parent = SearchBox
 
--- Thanh menu bên trái
 local LeftMenu = Instance.new("ScrollingFrame")
 LeftMenu.Name = "LeftMenu"
 LeftMenu.Parent = MainFrame
@@ -370,7 +347,6 @@ UIListLayout.Parent = LeftMenu
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 UIListLayout.Padding = UDim.new(0, 6)
 
--- Hàm phụ trợ để thêm nút script con bên trong trang
 local function AddScriptButton(targetPage, scriptName, callback)
     local btn = Instance.new("TextButton")
     btn.Parent = targetPage
@@ -396,7 +372,6 @@ local function AddScriptButton(targetPage, scriptName, callback)
     targetPage.CanvasSize = UDim2.new(0, 0, 0, targetPage.UIListLayout.AbsoluteContentSize.Y + 10)
 end
 
--- Tính năng tìm kiếm động
 SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
     local text = SearchBox.Text:lower()
     for _, page in pairs(Pages) do
@@ -412,7 +387,6 @@ SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
     end
 end)
 
--- Danh sách lưu trữ các nút menu trái
 local MenuButtons = {}
 
 local function CreateMenuButton(name, targetPage)
@@ -462,7 +436,6 @@ end
 CreateMenuButton("Blox Fruit", bfPage)
 CreateMenuButton("Steal An Egg", saePage)
 
--- Thêm các script vào Hub
 AddScriptButton(saePage, "Night Hub V2", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/StealAnEggs.luau"))()
 end)
@@ -473,6 +446,10 @@ end)
 
 AddScriptButton(saePage, "Sena", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/senarblx/sena/refs/heads/main/loader'))()
+end)
+
+AddScriptButton(saePage, "LennonV2", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/lennonxscripts/lennonhubv2/main/stealaneggv2"))()
 end)
 
 AddScriptButton(bfPage, "RealKid", function()
