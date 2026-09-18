@@ -304,7 +304,11 @@ end
 CreateMenuButton("Blox Fruit", bfPage)
 CreateMenuButton("Steal An Egg", saePage)
 
--- Thêm script Night Hub V1 vào bên trong mục Steal An Egg
+-- Thêm cả Night Hub V2 và Night Hub V1 vào mục Steal An Egg
+AddScriptButton(saePage, "Night Hub V2", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/StealAnEggs.luau"))()
+end)
+
 AddScriptButton(saePage, "Night Hub V1", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/StealEggOnly.luau"))()
 end)
