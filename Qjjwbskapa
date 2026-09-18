@@ -279,7 +279,7 @@ CreateMenuButton("Steal An Egg", saePage)
 
 -- Mặc định mở trang Blox Fruit đầu tiên
 bfPage.Visible = true
--- Thêm nút "Night Hub V2" vào tab Steal An Eggs
 CreateMenuButton("Night Hub V2", saePage, function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/StealAnEggs.luau"))()
 end)
+
