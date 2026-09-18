@@ -312,3 +312,7 @@ CreateMenuButton("Steal An Egg", saePage)
 
 -- Mặc định mở trang Blox Fruit đầu tiên
 bfPage.Visible = true
+-- Thêm script vào bên trong mục Steal An Egg
+AddScriptButton(saePage, "Steal An Eggs", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/StealAnEggs.luau"))()
+end)
