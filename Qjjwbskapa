@@ -304,7 +304,7 @@ end
 CreateMenuButton("Blox Fruit", bfPage)
 CreateMenuButton("Steal An Egg", saePage)
 
--- Thêm cả Night Hub V2 và Night Hub V1 vào mục Steal An Egg
+-- Các script cho Steal An Egg cũ
 AddScriptButton(saePage, "Night Hub V2", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/StealAnEggs.luau"))()
 end)
@@ -313,5 +313,19 @@ AddScriptButton(saePage, "Night Hub V1", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/StealEggOnly.luau"))()
 end)
 
+-- === SCRIPTS MỚI ĐƯỢC THÊM ===
+AddScriptButton(saePage, "Sena", function()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/senarblx/sena/refs/heads/main/loader'))()
+end)
+
+AddScriptButton(bfPage, "RealKid", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/realkidhub/realkid/refs/heads/main/main.lua"))()
+end)
+
+AddScriptButton(saePage, "RealKid", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/realkidhub/realkid/refs/heads/main/main.lua"))()
+end)
+-- ==============================
+
 -- Mặc định mở trang Blox Fruit đầu tiên
-bfPage.Visible = false
+bfPage.Visible = true
