@@ -1,4 +1,4 @@
--- [[ BRAKYO SCRIPT HUB - ROUND ICON ANIMATION ]]
+-- [[ BRAKYO SCRIPT HUB - ROUND ICON ANIMATION & TAB EFFECT ]]
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -19,26 +19,23 @@ BrakyoHub.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 local MinButton = Instance.new("TextButton")
 MinButton.Name = "MinButton"
 MinButton.Parent = BrakyoHub
--- Màu Cyan trong suốt (RGB: 0, 255, 255 với độ trong suốt 0.4)
 MinButton.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
 MinButton.BackgroundTransparency = 0.4
 MinButton.BorderSizePixel = 0
 MinButton.Position = UDim2.new(0.05, 0, 0.1, 0)
-MinButton.Size = UDim2.new(0, 48, 0, 48) -- Kích thước hình tròn đều
-MinButton.Font = Enum.Font.FredokaOne -- Font chữ nghệ thuật, bo tròn nhìn rất đẹp và hiện đại
+MinButton.Size = UDim2.new(0, 48, 0, 48)
+MinButton.Font = Enum.Font.FredokaOne
 MinButton.Text = "BK"
-MinButton.TextColor3 = Color3.fromRGB(255, 255, 255) -- Chữ trắng nổi bật trên nền Cyan
+MinButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 MinButton.TextSize = 18
 MinButton.Draggable = true
 MinButton.Visible = false
 MinButton.Active = true
 
--- Bo góc tối đa để tạo thành hình tròn hoàn hảo
 local MinCorner = Instance.new("UICorner")
 MinCorner.CornerRadius = UDim.new(1, 0)
 MinCorner.Parent = MinButton
 
--- Viền phát sáng cho icon tròn
 local MinStroke = Instance.new("UIStroke")
 MinStroke.Parent = MinButton
 MinStroke.Color = Color3.fromRGB(0, 255, 255)
@@ -61,7 +58,6 @@ local MainCorner = Instance.new("UICorner")
 MainCorner.CornerRadius = UDim.new(0, 10)
 MainCorner.Parent = MainFrame
 
--- Viền phát sáng nhẹ cho MainFrame
 local MainStroke = Instance.new("UIStroke")
 MainStroke.Parent = MainFrame
 MainStroke.Color = Color3.fromRGB(45, 45, 60)
@@ -171,7 +167,7 @@ UIListLayout.Parent = LeftMenu
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 UIListLayout.Padding = UDim.new(0, 6)
 
--- Khung chứa nội dung bên phải (đang để trống sạch sẽ)
+-- Khung chứa nội dung bên phải
 local RightContainer = Instance.new("Frame")
 RightContainer.Name = "RightContainer"
 RightContainer.Parent = MainFrame
@@ -206,11 +202,11 @@ local function CreateTab(name)
     return Page
 end
 
--- Tạo sẵn 2 trang trống: Blox Fruit và Steal An Egg
+-- Tạo sẵn 2 trang: Blox Fruit và Steal An Egg
 local bfPage = CreateTab("Blox Fruit")
 local saePage = CreateTab("Steal An Egg")
 
--- Hàm phụ trợ để sau này thêm nút script
+-- Hàm phụ trợ để thêm nút script con bên trong trang
 local function AddScriptButton(targetPage, scriptName, callback)
     local btn = Instance.new("TextButton")
     btn.Parent = targetPage
@@ -227,6 +223,10 @@ local function AddScriptButton(targetPage, scriptName, callback)
     corner.Parent = btn
     
     btn.MouseButton1Click:Connect(function()
+        -- Hiệu ứng lún/nhấp nháy nhẹ khi bấm nút script con
+        TweenService:Create(btn, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(0, 255, 255), TextColor3 = Color3.fromRGB(15, 15, 20)}):Play()
+        task.wait(0.1)
+        TweenService:Create(btn, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(30, 30, 40), TextColor3 = Color3.fromRGB(230, 230, 230)}):Play()
         pcall(callback)
     end)
     
@@ -249,7 +249,10 @@ SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
     end
 end)
 
--- Hàm tạo nút bấm ở menu bên trái
+-- Danh sách lưu trữ các nút menu trái để quản lý hiệu ứng Active
+local MenuButtons = {}
+
+-- Hàm tạo nút bấm ở menu bên trái có hiệu ứng lún/đổi màu khi chọn
 local function CreateMenuButton(name, targetPage)
     local btn = Instance.new("TextButton")
     btn.Parent = LeftMenu
@@ -265,11 +268,36 @@ local function CreateMenuButton(name, targetPage)
     corner.CornerRadius = UDim.new(0, 6)
     corner.Parent = btn
     
+    table.insert(MenuButtons, {Button = btn, Page = targetPage})
+    
     btn.MouseButton1Click:Connect(function()
+        -- Ẩn tất cả các trang khác
         for _, p in pairs(Pages) do
             p.Visible = false
         end
         targetPage.Visible = true
+        
+        -- Reset màu sắc của tất cả các nút menu về mặc định
+        for _, item in ipairs(MenuButtons) do
+            TweenService:Create(item.Button, TweenInfo.new(0.2), {
+                BackgroundColor3 = Color3.fromRGB(22, 22, 30),
+                TextColor3 = Color3.fromRGB(170, 170, 190),
+                Size = UDim2.new(1, -5, 0, 36)
+            }):Play()
+        end
+        
+        -- Hiệu ứng lún xuống / đổi màu sáng cho nút đang được chọn
+        TweenService:Create(btn, TweenInfo.new(0.15), {
+            BackgroundColor3 = Color3.fromRGB(35, 35, 50),
+            TextColor3 = Color3.fromRGB(0, 255, 255),
+            Size = UDim2.new(1, -9, 0, 34) -- Hiệu ứng lún nhỏ lại một chút
+        }):Play()
+        
+        task.wait(0.15)
+        -- Phục hồi kích thước nhưng giữ nguyên màu trạng thái được chọn
+        TweenService:Create(btn, TweenInfo.new(0.15), {
+            Size = UDim2.new(1, -5, 0, 36)
+        }):Play()
     end)
 end
 
@@ -277,9 +305,10 @@ end
 CreateMenuButton("Blox Fruit", bfPage)
 CreateMenuButton("Steal An Egg", saePage)
 
+-- Ví dụ cách thêm nút script con vào trong mục Steal An Egg:
+-- AddScriptButton(saePage, "Night Hub V2", function()
+--     loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/StealAnEggs.luau"))()
+-- end)
+
 -- Mặc định mở trang Blox Fruit đầu tiên
 bfPage.Visible = true
-CreateMenuButton("Night Hub V2", saePage, function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/StealAnEggs.luau"))()
-end)
-
