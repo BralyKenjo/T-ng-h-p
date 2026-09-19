@@ -578,3 +578,7 @@ end)
 AddScriptButton(saePage, "RealKid", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/realkidhub/realkid/refs/heads/main/main.lua"))()
 end)
+
+AddScriptButton(saePage, "Vxeze", function()
+    loadstring(game:HttpGet("https://gist.githubusercontent.com/angeryy-tvy/6a9ce750ddf5860230196ac468868fdb/raw/Steal-An-Egg-Vxeze"))()
+end)
