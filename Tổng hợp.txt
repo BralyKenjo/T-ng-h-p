@@ -199,7 +199,7 @@ DiscText.BackgroundTransparency = 1
 DiscText.Position = UDim2.new(0, 20, 0, 20)
 DiscText.Size = UDim2.new(1, -40, 0, 110)
 DiscText.Font = Enum.Font.GothamMedium
-DiscText.Text = "⚠️ Miễn trách nhiệm vì đây là script trên mạng. Bạn có chắc chắn muốn tiếp tục sử dụng không?"
+DiscText.Text = "⚠️ Tất cả script đều lấy trên mạng, có key thì ae get và không chịu trách nhiệm"
 DiscText.TextColor3 = Color3.fromRGB(255, 255, 255)
 DiscText.TextSize = 14
 DiscText.TextWrapped = true
@@ -584,7 +584,7 @@ end
 CreateMenuButton("Blox Fruit", bfPage)
 CreateMenuButton("Steal An Egg", saePage)
 
--- Các script
+-- ==================== DANH SÁCH CŨ (GIỮ NGUYÊN) ====================
 AddScriptButton(saePage, "Night Hub V2", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/StealAnEggs.luau"))()
 end)
@@ -599,10 +599,6 @@ end)
 
 AddScriptButton(saePage, "LennonV2", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/lennonxscripts/lennonhubv2/main/stealaneggv2"))()
-end)
-
-AddScriptButton(bfPage, "RealKid", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/realkidhub/realkid/refs/heads/main/main.lua"))()
 end)
 
 AddScriptButton(saePage, "RealKid", function()
@@ -627,4 +623,184 @@ end)
 
 AddScriptButton(saePage, "Clover", function()
     loadstring(game:HttpGet("https://cloverhub.app/clover.lua"))()
+end)
+
+-- ==================== CÁC SCRIPT MỚI BỔ SUNG TỪ WEB ====================
+AddScriptButton(saePage, "Ouroboros", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/joustingmatch/Ouroboros/main/loader.lua"))()
+end)
+
+AddScriptButton(saePage, "ZeroIn Hub", function()
+    loadstring(game:HttpGet("https://zeroinhub.com/api/script"))()
+end)
+
+AddScriptButton(saePage, "Foxname Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/caomod2077/Script/refs/heads/main/Fn-stealanegg.lua"))()
+end)
+
+AddScriptButton(saePage, "Oxide Hub", function()
+    loadstring(game:HttpGet("https://pastefy.app/alzaPmW9/raw"))()
+end)
+
+AddScriptButton(saePage, "Valinc Hub", function()
+    loadstring(game:HttpGet("https://api.valincsyndicate.com/v1/releases/5502cba03703f4a3628d522d396b80d8.lua"))()
+end)
+
+AddScriptButton(saePage, "TeamUB Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/TeamUBHub/UBLoader/refs/heads/main/Loader.lua"))()
+end)
+
+AddScriptButton(saePage, "Zero Point", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/JaxRol/ZeroPoint/refs/heads/main/KeySystem"))()
+end)
+
+AddScriptButton(saePage, "Blyxo Hub", function()
+    loadstring(game:HttpGet("https://flowauth.net/v1/loaders/69d3463240384f3a73fbe32c178093a2.lua"))()
+end)
+
+AddScriptButton(saePage, "BK Hub", function()
+    loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/9ee4edde227ac85f50872bf9e4226508.lua"))()
+end)
+
+AddScriptButton(saePage, "BigFroot Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/hanniii1/Loader/refs/heads/main/BFLoader.lua"))()
+end)
+
+AddScriptButton(saePage, "Speed Hub X", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
+end)
+
+AddScriptButton(saePage, "Nasi Rendang", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/JualNasiRendang/loader/refs/heads/main/main.lua"))()
+end)
+
+AddScriptButton(saePage, "Lumin Hub", function()
+    loadstring(game:HttpGet("http://luminon.top/loader.lua"))()
+end)
+
+AddScriptButton(saePage, "Airflow Hub", function()
+    loadstring(game:HttpGet("https://airflowscript.com/loader"))()
+end)
+
+AddScriptButton(saePage, "Yuri Hub", function()
+    _G.autoExec = false
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/iLove-yuri/leeeeesbian/refs/heads/main/homumado.lua"))()
+end)
+
+AddScriptButton(saePage, "Saiops Hub", function()
+    loadstring(game:HttpGet("https://api.saiops.cc/scripts/Steal-An-Egg-Script.lua"))()
+end)
+
+AddScriptButton(saePage, "Vantage Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/MisterNovitski/Vantage/refs/heads/main/mm2.txt", true))()
+end)
+
+AddScriptButton(saePage, "Nova Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/NovaHubRBLX/NovaHub/refs/heads/main/novahub.lua"))()
+end)
+
+AddScriptButton(saePage, "Ajjans Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/virtuososvisualedits-prog/Ww/refs/heads/main/final-obfuscated.lua"))()
+end)
+
+AddScriptButton(saePage, "Nemesis Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/x2zu/loader/main/freeloader.lua", true))()
+end)
+
+AddScriptButton(saePage, "Solix Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/bao8jl/solixhub/main/loader"))()
+end)
+
+AddScriptButton(saePage, "Hoshi Hub", function()
+    loadstring(game:HttpGet("https://hoshihub.site/loader.lua"))()
+end)
+
+AddScriptButton(saePage, "Axon Hub", function()
+    loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/97c3f6db55a2cf72141537a85458e5a7.lua"))()
+end)
+
+AddScriptButton(saePage, "Flow Hub", function()
+    loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/5946add9ab91f1e04cb005346a8b1968.lua"))()
+end)
+
+AddScriptButton(saePage, "Rift Hub", function()
+    loadstring(game:HttpGet("https://rifton.top/loader.lua"))()
+end)
+
+AddScriptButton(saePage, "Kexxe Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/premiumbuddy/kex/refs/heads/main/kexxxx"))()
+end)
+
+AddScriptButton(saePage, "Snowy Hub", function()
+    loadstring(game:HttpGet("https://flowauth.net/v1/ui/a87f00d9adf63658655fcd02ab86a4ef.lua"))()
+end)
+
+AddScriptButton(saePage, "OMG Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Omgshit/Scripts/main/MainLoader.lua"))()
+end)
+
+AddScriptButton(saePage, "Asvra Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/asvraRoblox/stealegg/refs/heads/main/main"))()
+end)
+
+AddScriptButton(saePage, "Zero Hub", function()
+    loadstring(game:HttpGet("https://www.zeroimpact.online/raw/loader"))()
+end)
+
+AddScriptButton(saePage, "Miranda Hub", function()
+    loadstring(game:HttpGet("https://api.jnkie.com/api/v1/luascripts/public/f56794e06dcfb4adad5dc739dff503f38ca8f7cc94e045eafe823a3c5f09c4cc/download"))()
+end)
+
+AddScriptButton(saePage, "Probest Hub", function()
+    loadstring(game:HttpGet("https://api.jnkie.com/api/v1/luascripts/public/0199b576f5c2d5a3415910f9f4e1de0a566b4d1da5b1cfa5d2f71ade9bdcaa24/download"))()
+end)
+
+AddScriptButton(saePage, "GS Hub", function()
+    loadstring(game:HttpGet("https://gist.githubusercontent.com/spiritualgaming1123-beep/46ef55c5f8284e076aafc5ebd12233f4/raw/5b24749c3931c1838a76e64c9af508dcdd03700a/gistfile1.lua"))()
+end)
+
+AddScriptButton(saePage, "Sportsclub Hub", function()
+    loadstring(game:HttpGet("https://loader.sportsclub.fun/loader.luau"))()
+end)
+
+AddScriptButton(saePage, "Scriptverse Hub", function()
+    loadstring(game:HttpGet("https://scriptversekey.xyz/s/steal-an-egg"))()
+end)
+
+AddScriptButton(saePage, "ZK Hub", function()
+    _G.Config = {ApiKey = "ZKCOMMUNITYcfdb742a751aad57d79b375ea6c7cbc7"}
+    loadstring(game:HttpGet("https://zkcommunity.cloud/loader.lua"))()
+end)
+
+AddScriptButton(saePage, "Axonic Hub", function()
+    _G.loadstring(game:HttpGet("https://raw.githubusercontent.com/Kenniel123/Steal-A-Egg/refs/heads/main/Steal%20A%20Egg"))()
+end)
+
+AddScriptButton(saePage, "Pig Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/mopsscript7-gif/steal-an-egg/refs/heads/main/script.lua"))()
+end)
+
+AddScriptButton(saePage, "Neox Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/hassanxzayn-lua/NEOXHUBMAIN/refs/heads/main/loader", true))()
+end)
+
+AddScriptButton(saePage, "Fyy Hub", function()
+    loadstring(game:HttpGet("https://fyycommunity.com/"))()
+end)
+
+AddScriptButton(saePage, "Sys Hub", function()
+    loadstring(game:HttpGet("https://syshub.fun/free"))()
+end)
+
+AddScriptButton(saePage, "Chiyo Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/kaisenlmao/loader/refs/heads/main/chiyo.lua"))()
+end)
+
+AddScriptButton(saePage, "Tsuo Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Tsuo7/TsuoHub/main/stealanegg"))()
+end)
+
+-- ==================== DANH SÁCH SCRIPT BLOX FRUIT ====================
+AddScriptButton(bfPage, "RealKid", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/realkidhub/realkid/refs/heads/main/main.lua"))()
 end)
