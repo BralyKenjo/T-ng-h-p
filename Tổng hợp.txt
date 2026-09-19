@@ -586,3 +586,19 @@ end)
 AddScriptButton(saePage, "VoidShell", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/VoidShell-null/VoidShell-Hub/refs/heads/main/Scripts/StealAnEgg.luau"))()
 end)
+
+AddScriptButton(saePage, "NevaHub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/VEZ2/NEVAHUB/main/2"))()
+end)
+
+AddScriptButton(saePage, "Tsuo", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Tsuo7/TsuoHub/main/stealanegg"))()
+end)
+
+AddScriptButton(saePage, "LennonV1", function()
+    loadstring(game:HttpGet("https://api.jnkie.com/api/v1/luascripts/public/bf52181bce5c28e6ecd16eebfa1a88ddaf646c7acb10015fbaa7b30dc7bad0a8/download"))()
+end)
+
+AddScriptButton(saePage, "Clover", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Ryuun0x/Clover/main/main.lua"))()
+end)
