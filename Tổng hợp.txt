@@ -48,8 +48,8 @@ KeySystemFrame.Parent = BrakyoHub
 KeySystemFrame.BackgroundColor3 = Color3.fromRGB(18, 26, 32)
 KeySystemFrame.BackgroundTransparency = 0.15
 KeySystemFrame.BorderSizePixel = 0
-KeySystemFrame.Position = UDim2.new(0.5, -200, 0.5, -110)
-KeySystemFrame.Size = UDim2.new(0, 400, 0, 220)
+KeySystemFrame.Position = UDim2.new(0.5, -200, 0.5, -125)
+KeySystemFrame.Size = UDim2.new(0, 400, 0, 250)
 KeySystemFrame.Draggable = true
 KeySystemFrame.Active = true
 KeySystemFrame.ClipsDescendants = true
@@ -66,7 +66,7 @@ KeyStroke.Thickness = 1.5
 local KeyTitle = Instance.new("TextLabel")
 KeyTitle.Parent = KeySystemFrame
 KeyTitle.BackgroundTransparency = 1
-KeyTitle.Position = UDim2.new(0, 0, 0, 15)
+KeyTitle.Position = UDim2.new(0, 0, 0, 12)
 KeyTitle.Size = UDim2.new(1, 0, 0, 30)
 KeyTitle.Font = Enum.Font.GothamBold
 KeyTitle.Text = "⚡ BRAKYO HUB - KEY SYSTEM"
@@ -78,8 +78,8 @@ KeyBox.Parent = KeySystemFrame
 KeyBox.BackgroundColor3 = Color3.fromRGB(28, 42, 53)
 KeyBox.BackgroundTransparency = 0.2
 KeyBox.BorderSizePixel = 0
-KeyBox.Position = UDim2.new(0.5, -170, 0, 60)
-KeyBox.Size = UDim2.new(0, 340, 0, 38)
+KeyBox.Position = UDim2.new(0.5, -170, 0, 50)
+KeyBox.Size = UDim2.new(0, 340, 0, 36)
 KeyBox.Font = Enum.Font.Gotham
 KeyBox.PlaceholderText = "Nhập Key của bạn vào đây..."
 KeyBox.Text = ""
@@ -95,8 +95,8 @@ KeyBoxCorner.Parent = KeyBox
 local SubmitBtn = Instance.new("TextButton")
 SubmitBtn.Parent = KeySystemFrame
 SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 220, 220)
-SubmitBtn.Position = UDim2.new(0.5, -170, 0, 110)
-SubmitBtn.Size = UDim2.new(0, 162, 0, 38)
+SubmitBtn.Position = UDim2.new(0.5, -170, 0, 94)
+SubmitBtn.Size = UDim2.new(0, 340, 0, 36)
 SubmitBtn.Font = Enum.Font.GothamBold
 SubmitBtn.Text = "XÁC NHẬN KEY"
 SubmitBtn.TextColor3 = Color3.fromRGB(15, 15, 20)
@@ -106,25 +106,42 @@ local SubmitCorner = Instance.new("UICorner")
 SubmitCorner.CornerRadius = UDim.new(0, 6)
 SubmitCorner.Parent = SubmitBtn
 
+-- Nút Lấy Key: link4sub
 local GetKeyBtn = Instance.new("TextButton")
 GetKeyBtn.Parent = KeySystemFrame
 GetKeyBtn.BackgroundColor3 = Color3.fromRGB(28, 42, 53)
 GetKeyBtn.BackgroundTransparency = 0.2
-GetKeyBtn.Position = UDim2.new(0.5, 8, 0, 110)
-GetKeyBtn.Size = UDim2.new(0, 162, 0, 38)
+GetKeyBtn.Position = UDim2.new(0.5, -170, 0, 138)
+GetKeyBtn.Size = UDim2.new(0, 162, 0, 36)
 GetKeyBtn.Font = Enum.Font.GothamBold
-GetKeyBtn.Text = "LẤY KEY"
+GetKeyBtn.Text = "link4sub"
 GetKeyBtn.TextColor3 = Color3.fromRGB(230, 245, 255)
-GetKeyBtn.TextSize = 13
+GetKeyBtn.TextSize = 12
 
 local GetKeyCorner = Instance.new("UICorner")
 GetKeyCorner.CornerRadius = UDim.new(0, 6)
 GetKeyCorner.Parent = GetKeyBtn
 
+-- Nút Lấy Key: link4m
+local GetKeyBtn2 = Instance.new("TextButton")
+GetKeyBtn2.Parent = KeySystemFrame
+GetKeyBtn2.BackgroundColor3 = Color3.fromRGB(28, 42, 53)
+GetKeyBtn2.BackgroundTransparency = 0.2
+GetKeyBtn2.Position = UDim2.new(0.5, 8, 0, 138)
+GetKeyBtn2.Size = UDim2.new(0, 162, 0, 36)
+GetKeyBtn2.Font = Enum.Font.GothamBold
+GetKeyBtn2.Text = "link4m"
+GetKeyBtn2.TextColor3 = Color3.fromRGB(230, 245, 255)
+GetKeyBtn2.TextSize = 12
+
+local GetKeyCorner2 = Instance.new("UICorner")
+GetKeyCorner2.CornerRadius = UDim.new(0, 6)
+GetKeyCorner2.Parent = GetKeyBtn2
+
 local StatusLabel = Instance.new("TextLabel")
 StatusLabel.Parent = KeySystemFrame
 StatusLabel.BackgroundTransparency = 1
-StatusLabel.Position = UDim2.new(0, 0, 0, 165)
+StatusLabel.Position = UDim2.new(0, 0, 0, 182)
 StatusLabel.Size = UDim2.new(1, 0, 0, 25)
 StatusLabel.Font = Enum.Font.GothamMedium
 StatusLabel.Text = ""
@@ -136,10 +153,22 @@ GetKeyBtn.MouseButton1Click:Connect(function()
     if setclipboard then
         setclipboard(link)
         StatusLabel.TextColor3 = Color3.fromRGB(0, 220, 220)
-        StatusLabel.Text = "Đã sao chép link lấy key vào Clipboard!"
+        StatusLabel.Text = "Đã sao chép link link4sub vào Clipboard!"
     else
         StatusLabel.TextColor3 = Color3.fromRGB(255, 90, 90)
-        StatusLabel.Text = "Link lấy key: " .. link
+        StatusLabel.Text = "Link link4sub: " .. link
+    end
+end)
+
+GetKeyBtn2.MouseButton1Click:Connect(function()
+    local link = "https://link4m.net/DoGHs0MS"
+    if setclipboard then
+        setclipboard(link)
+        StatusLabel.TextColor3 = Color3.fromRGB(0, 220, 220)
+        StatusLabel.Text = "Đã sao chép link link4m vào Clipboard!"
+    else
+        StatusLabel.TextColor3 = Color3.fromRGB(255, 90, 90)
+        StatusLabel.Text = "Link link4m: " .. link
     end
 end)
 
@@ -555,7 +584,7 @@ end
 CreateMenuButton("Blox Fruit", bfPage)
 CreateMenuButton("Steal An Egg", saePage)
 
--- Các script còn lại
+-- Các script
 AddScriptButton(saePage, "Night Hub V2", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/StealAnEggs.luau"))()
 end)
@@ -564,7 +593,6 @@ AddScriptButton(saePage, "Night Hub V1", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/StealEggOnly.luau"))()
 end)
 
--- Sena link mới
 AddScriptButton(saePage, "Sena", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/senarblx/sena/refs/heads/main/senav3go'))()
 end)
@@ -597,7 +625,6 @@ AddScriptButton(saePage, "LennonV1", function()
     loadstring(game:HttpGet("https://api.jnkie.com/api/v1/luascripts/public/bf52181bce5c28e6ecd16eebfa1a88ddaf646c7acb10015fbaa7b30dc7bad0a8/download"))()
 end)
 
--- Clover link mới
 AddScriptButton(saePage, "Clover", function()
     loadstring(game:HttpGet("https://cloverhub.app/clover.lua"))()
 end)
