@@ -1,4 +1,4 @@
--- [[ BRAKYO SCRIPT HUB - OPTIMIZED & SMOOTH VERSION ]]
+-- [[ BRAKYO HUB - OPTIMIZED & SMOOTH VERSION ]]
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -143,7 +143,7 @@ GetKeyBtn.MouseButton1Click:Connect(function()
     end
 end)
 
--- ==================== DISCLAIMER FRAME (MIỄN TRÁCH NHIỆM) ====================
+-- ==================== DISCLAIMER FRAME ====================
 local DisclaimerFrame = Instance.new("Frame")
 DisclaimerFrame.Name = "DisclaimerFrame"
 DisclaimerFrame.Parent = BrakyoHub
@@ -189,7 +189,7 @@ local AcceptDiscCorner = Instance.new("UICorner")
 AcceptDiscCorner.CornerRadius = UDim.new(0, 6)
 AcceptDiscCorner.Parent = AcceptDiscBtn
 
--- ==================== MIN BUTTON (ICON TRÒN) ====================
+-- ==================== MIN BUTTON ====================
 local MinButton = Instance.new("TextButton")
 MinButton.Name = "MinButton"
 MinButton.Parent = BrakyoHub
@@ -555,6 +555,7 @@ end
 CreateMenuButton("Blox Fruit", bfPage)
 CreateMenuButton("Steal An Egg", saePage)
 
+-- Các script còn lại
 AddScriptButton(saePage, "Night Hub V2", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/StealAnEggs.luau"))()
 end)
@@ -563,8 +564,9 @@ AddScriptButton(saePage, "Night Hub V1", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/StealEggOnly.luau"))()
 end)
 
+-- Sena link mới
 AddScriptButton(saePage, "Sena", function()
-    loadstring(game:HttpGet('https://raw.githubusercontent.com/senarblx/sena/refs/heads/main/loader'))()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/senarblx/sena/refs/heads/main/senav3go'))()
 end)
 
 AddScriptButton(saePage, "LennonV2", function()
@@ -591,14 +593,11 @@ AddScriptButton(saePage, "NevaHub", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/VEZ2/NEVAHUB/main/2"))()
 end)
 
-AddScriptButton(saePage, "Tsuo", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Tsuo7/TsuoHub/main/stealanegg"))()
-end)
-
 AddScriptButton(saePage, "LennonV1", function()
     loadstring(game:HttpGet("https://api.jnkie.com/api/v1/luascripts/public/bf52181bce5c28e6ecd16eebfa1a88ddaf646c7acb10015fbaa7b30dc7bad0a8/download"))()
 end)
 
+-- Clover link mới
 AddScriptButton(saePage, "Clover", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Ryuun0x/Clover/main/main.lua"))()
+    loadstring(game:HttpGet("https://cloverhub.app/clover.lua"))()
 end)
