@@ -1,8 +1,9 @@
--- [[ BRAKYO HUB - UPDATED LENNON HUB V2 ]]
+-- [[ BRAKYO HUB - UPDATED ]]
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local Player = Players.LocalPlayer
+local HttpService = game:GetService("HttpService")
 
 if CoreGui:FindFirstChild("BrakyoHub") then
     CoreGui.BrakyoHub:Destroy()
@@ -30,7 +31,7 @@ local ValidKeys = {
     ["BK-Y3dN8mL6wQ2xR9pV"] = true
 }
 
--- Cấu hình Key đặc biệt (Chỉ dùng 1 lần duy nhất vĩnh viễn trên máy, hạn 6 tiếng)
+-- Cấu hình Key đặc biệt (Giữ nguyên ngầm định)
 local SpecialKey = "BraKyo1421"
 local SpecialKeyDuration = 6 * 60 * 60 
 local NormalKeyDuration = 12 * 60 * 60 
@@ -46,7 +47,7 @@ end
 local function LockDevicePermanently()
     if writefile then
         pcall(function()
-            writefile(UsedDeviceFile, game:GetService("HttpService"):JSONEncode({LockedTime = os.time()}))
+            writefile(UsedDeviceFile, HttpService:JSONEncode({LockedTime = os.time()}))
         end)
     end
 end
@@ -55,7 +56,7 @@ local function CheckActiveSession()
     if not (readfile and writefile and isfile and delfile) then return false end
     if isfile(ActiveKeyFile) then
         local success, data = pcall(function()
-            return game:GetService("HttpService"):JSONDecode(readfile(ActiveKeyFile))
+            return HttpService:JSONDecode(readfile(ActiveKeyFile))
         end)
         if success and data and data.ExpireTime then
             if os.time() < data.ExpireTime then
@@ -74,8 +75,8 @@ KeySystemFrame.Name = "KeySystemFrame"
 KeySystemFrame.BackgroundColor3 = Color3.fromRGB(18, 26, 32)
 KeySystemFrame.BackgroundTransparency = 0.15
 KeySystemFrame.BorderSizePixel = 0
-KeySystemFrame.Position = UDim2.new(0.5, -200, 0.5, -125)
-KeySystemFrame.Size = UDim2.new(0, 400, 0, 250)
+KeySystemFrame.Position = UDim2.new(0.5, -200, 0.5, -135)
+KeySystemFrame.Size = UDim2.new(0, 400, 0, 270)
 KeySystemFrame.Draggable = true
 KeySystemFrame.Active = true
 KeySystemFrame.ClipsDescendants = true
@@ -121,13 +122,49 @@ Instance.new("UICorner", SubmitBtn).CornerRadius = UDim.new(0, 6)
 
 local StatusLabel = Instance.new("TextLabel", KeySystemFrame)
 StatusLabel.BackgroundTransparency = 1
-StatusLabel.Position = UDim2.new(0, 0, 0, 140)
-StatusLabel.Size = UDim2.new(1, 0, 0, 65)
+StatusLabel.Position = UDim2.new(0, 0, 0, 138)
+StatusLabel.Size = UDim2.new(1, 0, 0, 30)
 StatusLabel.Font = Enum.Font.GothamMedium
-StatusLabel.Text = "Key thường: Hạn 12h.\nKey 'BraKyo1421': Chỉ dùng 1 lần duy nhất trên máy này (Hạn 6h)."
+StatusLabel.Text = ""
 StatusLabel.TextColor3 = Color3.fromRGB(180, 200, 220)
-StatusLabel.TextSize = 11
-StatusLabel.TextWrapped = true
+StatusLabel.TextSize = 12
+
+-- 2 Nút Get Key (Link 4m & Link 4 sub) sao chép vào clipboard khi bấm
+local Link4mBtn = Instance.new("TextButton", KeySystemFrame)
+Link4mBtn.BackgroundColor3 = Color3.fromRGB(45, 60, 75)
+Link4mBtn.Position = UDim2.new(0.5, -170, 0, 180)
+Link4mBtn.Size = UDim2.new(0, 162, 0, 34)
+Link4mBtn.Font = Enum.Font.GothamBold
+Link4mBtn.Text = "GET KEY: LINK 4M"
+Link4mBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+Link4mBtn.TextSize = 12
+Instance.new("UICorner", Link4mBtn).CornerRadius = UDim.new(0, 6)
+
+Link4mBtn.MouseButton1Click:Connect(function()
+    if setclipboard then
+        setclipboard("https://link4m.com/example") -- Thay link thực tế của bạn vào đây nếu cần
+        StatusLabel.TextColor3 = Color3.fromRGB(0, 220, 220)
+        StatusLabel.Text = "✅ Đã sao chép Link 4m vào clipboard!"
+    end
+end)
+
+local Link4SubBtn = Instance.new("TextButton", KeySystemFrame)
+Link4SubBtn.BackgroundColor3 = Color3.fromRGB(45, 60, 75)
+Link4SubBtn.Position = UDim2.new(0.5, 8, 0, 180)
+Link4SubBtn.Size = UDim2.new(0, 162, 0, 34)
+Link4SubBtn.Font = Enum.Font.GothamBold
+Link4SubBtn.Text = "GET KEY: LINK 4 SUB"
+Link4SubBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+Link4SubBtn.TextSize = 12
+Instance.new("UICorner", Link4SubBtn).CornerRadius = UDim.new(0, 6)
+
+Link4SubBtn.MouseButton1Click:Connect(function()
+    if setclipboard then
+        setclipboard("https://link4sub.com/example") -- Thay link thực tế của bạn vào đây nếu cần
+        StatusLabel.TextColor3 = Color3.fromRGB(0, 220, 220)
+        StatusLabel.Text = "✅ Đã sao chép Link 4 sub vào clipboard!"
+    end
+end)
 
 -- ==================== DISCLAIMER FRAME ====================
 local DisclaimerFrame = Instance.new("Frame", BrakyoHub)
@@ -293,11 +330,11 @@ SubmitBtn.MouseButton1Click:Connect(function()
         LockDevicePermanently()
         if writefile then
             local expireTime = os.time() + SpecialKeyDuration
-            writefile(ActiveKeyFile, game:GetService("HttpService"):JSONEncode({ExpireTime = expireTime}))
+            writefile(ActiveKeyFile, HttpService:JSONEncode({ExpireTime = expireTime}))
         end
         
         StatusLabel.TextColor3 = Color3.fromRGB(0, 220, 220)
-        StatusLabel.Text = "✅ Thành công! Kích hoạt 6 tiếng."
+        StatusLabel.Text = "✅ Thành công!"
         task.wait(0.8)
         KeySystemFrame:Destroy()
         DisclaimerFrame.Visible = true
@@ -305,11 +342,11 @@ SubmitBtn.MouseButton1Click:Connect(function()
     elseif ValidKeys[enteredKey] then
         if writefile then
             local expireTime = os.time() + NormalKeyDuration
-            writefile(ActiveKeyFile, game:GetService("HttpService"):JSONEncode({ExpireTime = expireTime}))
+            writefile(ActiveKeyFile, HttpService:JSONEncode({ExpireTime = expireTime}))
         end
         
         StatusLabel.TextColor3 = Color3.fromRGB(0, 220, 220)
-        StatusLabel.Text = "✅ Thành công! Kích hoạt 12 tiếng."
+        StatusLabel.Text = "✅ Thành công!"
         task.wait(0.8)
         KeySystemFrame:Destroy()
         DisclaimerFrame.Visible = true
@@ -470,7 +507,7 @@ end
 CreateMenuButton("Blox Fruit", bfPage)
 CreateMenuButton("Steal An Egg", saePage)
 
--- ==================== CÁC SCRIPT CŨ (ĐÃ CÓ SẴN TRONG MENU) ====================
+-- ==================== CÁC SCRIPT (ĐÃ LỌC BỎ THEO YÊU CẦU) ====================
 AddScriptButton(saePage, "Speed Hub X", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
 end)
@@ -483,14 +520,8 @@ AddScriptButton(saePage, "Sena", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/senarblx/sena/refs/heads/main/senav3go'))()
 end)
 
--- Cập nhật Lennon Hub V2 theo link mới cung cấp
 AddScriptButton(saePage, "Lennon Hub V2", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/lennonxscripts/lennonhubv2/refs/heads/main/stealaneggv2"))()
-end)
-
--- ==================== CÁC SCRIPT MỚI LẤY TỪ FILE PDF (KHÔNG BỊ TRÙNG) ====================
-AddScriptButton(saePage, "Ouroboros", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/joustingmatch/Ouroboros/main/loader.lua"))()
 end)
 
 AddScriptButton(saePage, "Zeroin Hub", function()
@@ -501,20 +532,8 @@ AddScriptButton(saePage, "Foxname Hub", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/caomod2077/Script/refs/heads/main/Fn-stealanegg.lua"))()
 end)
 
-AddScriptButton(saePage, "Oxide Hub", function()
-    loadstring(game:HttpGet("https://pastefy.app/alzaPmW9/raw"))()
-end)
-
 AddScriptButton(saePage, "Valinc Hub", function()
     loadstring(game:HttpGet("https://api.valincsyndicate.com/v1/releases/5502cba03703f4a3628d522d396b80d8.lua"))()
-end)
-
-AddScriptButton(saePage, "UB Hub", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/TeamUBHub/UBLoader/refs/heads/main/Loader.lua"))()
-end)
-
-AddScriptButton(saePage, "Zero Point Hub", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/JaxRol/ZeroPoint/refs/heads/main/KeySystem"))()
 end)
 
 AddScriptButton(saePage, "Blyxo Hub", function()
@@ -543,11 +562,6 @@ end)
 
 AddScriptButton(saePage, "Airflow Hub", function()
     loadstring(game:HttpGet("https://airflowscript.com/loader"))()
-end)
-
-AddScriptButton(saePage, "Yuri Hub", function()
-    _G.autoExec = false
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/iLove-yuri/leeeeesbian/refs/heads/main/homumado.lua"))()
 end)
 
 AddScriptButton(saePage, "Saiops Hub", function()
@@ -666,10 +680,6 @@ end)
 
 AddScriptButton(saePage, "Chiyo Hub", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/kaisenlmao/loader/refs/heads/main/chiyo.lua"))()
-end)
-
-AddScriptButton(saePage, "Tsuo Hub", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Tsuo7/TsuoHub/main/stealanegg"))()
 end)
 
 -- Blox Fruit Script
