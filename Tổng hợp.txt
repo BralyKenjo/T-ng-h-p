@@ -1,4 +1,4 @@
--- [[ BRAKYO HUB - TIMED HWID KEY SYSTEM (12 HOURS) ]]
+-- [[ BRAKYO HUB - SIMPLE KEY SYSTEM ]]
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -13,7 +13,7 @@ BrakyoHub.Name = "BrakyoHub"
 BrakyoHub.Parent = CoreGui
 BrakyoHub.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- Danh sách Key vĩnh viễn của bạn (Không bao giờ hết hạn nếu không sửa code)
+-- Danh sách Key vĩnh viễn của bạn
 local ValidKeys = {
     "O5J6sql",
     "6lhq071K",
@@ -23,24 +23,6 @@ local ValidKeys = {
     "BK-7vQ9xL2mR8pT4zN",
     "BK-X5nK8wP3qY7dH6s"
 }
-
--- ==================== CƠ CHẾ HWID & THỜI GIAN 12 GIỜ ====================
--- Sử dụng getgenv() để lưu mốc thời gian riêng cho từng phiên/thiết bị
-getgenv().BrakyoKeyData = getgenv().BrakyoKeyData or {
-    Authorized = false,
-    ExpireTime = 0
-}
-
-local DURATION_HOURS = 12 -- Thời gian hiệu lực (12 giờ)
-local function CheckAuthorization()
-    local currentTime = os.time()
-    if getgenv().BrakyoKeyData.Authorized and currentTime < getgenv().BrakyoKeyData.ExpireTime then
-        return true -- Vẫn còn hạn trong 12 tiếng của thiết bị này
-    else
-        getgenv().BrakyoKeyData.Authorized = false
-        return false -- Đã hết hạn hoặc chưa nhập
-    end
-end
 
 -- ==================== KEY SYSTEM FRAME ====================
 local KeySystemFrame = Instance.new("Frame", BrakyoHub)
@@ -75,7 +57,7 @@ KeyBox.BorderSizePixel = 0
 KeyBox.Position = UDim2.new(0.5, -170, 0, 50)
 KeyBox.Size = UDim2.new(0, 340, 0, 36)
 KeyBox.Font = Enum.Font.Gotham
-KeyBox.PlaceholderText = "Nhập Key của bạn (Hiệu lực 12h)..."
+KeyBox.PlaceholderText = "Nhập Key của bạn..."
 KeyBox.Text = ""
 KeyBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 KeyBox.PlaceholderColor3 = Color3.fromRGB(150, 170, 190)
@@ -283,14 +265,7 @@ end
 local bfPage = CreateTab("Blox Fruit")
 local saePage = CreateTab("Steal An Egg")
 
--- Xử lý logic kiểm tra trạng thái ngay khi khởi chạy script
-if CheckAuthorization() then
-    KeySystemFrame.Visible = false
-    DisclaimerFrame.Visible = true
-else
-    KeySystemFrame.Visible = true
-end
-
+-- Xử lý nút xác nhận Key (Nhập đúng là qua bảng Disclaimer)
 SubmitBtn.MouseButton1Click:Connect(function()
     local enteredKey = KeyBox.Text:gsub("^%s+", ""):gsub("%s+$", "")
     local isValid = false
@@ -303,13 +278,9 @@ SubmitBtn.MouseButton1Click:Connect(function()
     end
     
     if isValid then
-        -- Lưu mốc thời gian hiệu lực 12 giờ cho thiết bị này (tính bằng giây)
-        getgenv().BrakyoKeyData.Authorized = true
-        getgenv().BrakyoKeyData.ExpireTime = os.time() + (DURATION_HOURS * 3600)
-        
         StatusLabel.TextColor3 = Color3.fromRGB(0, 220, 220)
-        StatusLabel.Text = "✅ Thành công! Có hiệu lực trong 12 giờ."
-        task.wait(0.8)
+        StatusLabel.Text = "✅ Thành công!"
+        task.wait(0.5)
         KeySystemFrame:Destroy()
         DisclaimerFrame.Visible = true
     else
