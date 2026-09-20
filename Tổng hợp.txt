@@ -1,4 +1,4 @@
--- [[ BRAKYO HUB - FIXED & UPDATED ]]
+-- [[ BRAKYO HUB - UPDATED KEY SYSTEM ]]
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -14,30 +14,28 @@ BrakyoHub.Name = "BrakyoHub"
 BrakyoHub.Parent = CoreGui
 BrakyoHub.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- Danh sách Key thông thường (Hạn 12 tiếng)
+-- Cấu hình danh sách Key hợp lệ và Key đặc biệt
 local ValidKeys = {
-    ["O5J6sql"] = true,
-    ["6lhq071K"] = true,
-    ["Y61Vql9d"] = true,
-    ["Kr4i8P2k"] = true,
-    ["Ob927pa"] = true,
-    ["BK-7vQ9xL2mR8pT4zN"] = true,
-    ["BK-X5nK8wP3qY7dH6s"] = true,
-    ["BK-9mF2rV8xC5kL7qT"] = true,
-    ["BK-Q4zN7pX2wM9sK6dR"] = true,
-    ["BK-H8tL3vQ7nY5xP2mK"] = true,
-    ["BK-R6pW9kT4zX8qN3vL"] = true,
-    ["BK-M7xC2qV9nP5rK8tH"] = true,
-    ["BK-Y3dN8mL6wQ2xR9pV"] = true
+    "O5J6sql",
+    "6lhq071K",
+    "Y61Vql9d",
+    "Kr4i8P2k",
+    "Ob927pa",
+    "BK-7vQ9xL2mR8pT4zN",
+    "BK-X5nK8wP3qY7dH6s",
+    "BK-9mF2rV8xC5kL7qT",
+    "BK-Q4zN7pX2wM9sK6dR",
+    "BK-H8tL3vQ7nY5xP2mK",
+    "BK-R6pW9kT4zX8qN3vL",
+    "BK-M7xC2qV9nP5rK8tH",
+    "BK-Y3dN8mL6wQ2xR9pV"
 }
 
--- Cấu hình Key đặc biệt
 local SpecialKey = "BraKyo1421"
-local SpecialKeyDuration = 6 * 60 * 60 
-local NormalKeyDuration = 12 * 60 * 60 
+local SessionDuration = 12 * 60 * 60 -- 12 tiếng hết hạn phiên, quay về nhập key
 
 local UsedDeviceFile = "BrakyoHub_DeviceLocked.json"
-local ActiveKeyFile = "BrakyoHub_ActiveSession.json"
+local ActiveSessionFile = "BrakyoHub_ActiveSession.json"
 
 local function IsDeviceLocked()
     if not (readfile and isfile) then return false end
@@ -52,17 +50,19 @@ local function LockDevicePermanently()
     end
 end
 
+-- Kiểm tra phiên làm việc (12 tiếng đối với key thường)
 local function CheckActiveSession()
     if not (readfile and writefile and isfile and delfile) then return false end
-    if isfile(ActiveKeyFile) then
+    if isfile(ActiveSessionFile) then
         local success, data = pcall(function()
-            return HttpService:JSONDecode(readfile(ActiveKeyFile))
+            return HttpService:JSONDecode(readfile(ActiveSessionFile))
         end)
         if success and data and data.ExpireTime then
             if os.time() < data.ExpireTime then
                 return true
             else
-                delfile(ActiveKeyFile)
+                -- Hết 12 tiếng -> Xóa file session để bắt buộc nhập lại key (key cũ vẫn giữ nguyên trong code)
+                delfile(ActiveSessionFile)
             end
         end
     end
@@ -129,7 +129,7 @@ StatusLabel.Text = ""
 StatusLabel.TextColor3 = Color3.fromRGB(180, 200, 220)
 StatusLabel.TextSize = 12
 
--- 2 Nút Get Key
+-- Nút Get Key
 local Link4mBtn = Instance.new("TextButton", KeySystemFrame)
 Link4mBtn.BackgroundColor3 = Color3.fromRGB(45, 60, 75)
 Link4mBtn.Position = UDim2.new(0.5, -170, 0, 180)
@@ -317,33 +317,34 @@ if CheckActiveSession() then
     bfPage.Visible = true
 end
 
--- ĐÃ FIX: Tự động loại bỏ khoảng trắng thừa đầu/cuối chuỗi key khi nhập
 SubmitBtn.MouseButton1Click:Connect(function()
     local enteredKey = KeyBox.Text:gsub("^%s+", ""):gsub("%s+$", "")
+    local isValid = false
     
+    -- Kiểm tra nếu là key đặc biệt BraKyo
     if enteredKey == SpecialKey then
         if IsDeviceLocked() then
             StatusLabel.TextColor3 = Color3.fromRGB(255, 90, 90)
             StatusLabel.Text = "❌ Thiết bị này đã dùng key đặc biệt này rồi và không thể dùng lại nữa!"
             return
         end
-        
         LockDevicePermanently()
-        if writefile then
-            local expireTime = os.time() + SpecialKeyDuration
-            writefile(ActiveKeyFile, HttpService:JSONEncode({ExpireTime = expireTime}))
+        isValid = true
+    else
+        -- Kiểm tra trong danh sách key thường
+        for _, k in ipairs(ValidKeys) do
+            if enteredKey == k then
+                isValid = true
+                break
+            end
         end
-        
-        StatusLabel.TextColor3 = Color3.fromRGB(0, 220, 220)
-        StatusLabel.Text = "✅ Thành công!"
-        task.wait(0.8)
-        KeySystemFrame:Destroy()
-        DisclaimerFrame.Visible = true
-        
-    elseif ValidKeys[enteredKey] then
+    end
+    
+    if isValid then
+        -- Lưu phiên làm việc 12 tiếng (cho cả key thường và đặc biệt)
         if writefile then
-            local expireTime = os.time() + NormalKeyDuration
-            writefile(ActiveKeyFile, HttpService:JSONEncode({ExpireTime = expireTime}))
+            local expireTime = os.time() + SessionDuration
+            writefile(ActiveSessionFile, HttpService:JSONEncode({ExpireTime = expireTime}))
         end
         
         StatusLabel.TextColor3 = Color3.fromRGB(0, 220, 220)
@@ -353,7 +354,7 @@ SubmitBtn.MouseButton1Click:Connect(function()
         DisclaimerFrame.Visible = true
     else
         StatusLabel.TextColor3 = Color3.fromRGB(255, 90, 90)
-        StatusLabel.Text = "❌ Key không chính xác hoặc đã hết hạn!"
+        StatusLabel.Text = "❌ Key không chính xác!"
     end
 end)
 
@@ -698,10 +699,6 @@ end)
 AddScriptButton(saePage, "NoName", function()
     _G.script_key = "wFCpjnuWREjHWOhXYamFecssieCAQNdy"
     loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/359e97f8618e9008afe5f496184ebb7c.lua"))()
-end)
-
-AddScriptButton(saePage, "Realkid", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/realkidhub/realkid/refs/heads/main/main.lua"))()
 end)
 
 -- Blox Fruit Script
