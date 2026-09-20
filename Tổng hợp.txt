@@ -129,7 +129,7 @@ StatusLabel.Text = ""
 StatusLabel.TextColor3 = Color3.fromRGB(180, 200, 220)
 StatusLabel.TextSize = 12
 
--- 2 Nút Get Key (Link 4m & Link 4 sub) sao chép vào clipboard khi bấm
+-- 2 Nút Get Key (Đã gắn link thật)
 local Link4mBtn = Instance.new("TextButton", KeySystemFrame)
 Link4mBtn.BackgroundColor3 = Color3.fromRGB(45, 60, 75)
 Link4mBtn.Position = UDim2.new(0.5, -170, 0, 180)
@@ -142,7 +142,7 @@ Instance.new("UICorner", Link4mBtn).CornerRadius = UDim.new(0, 6)
 
 Link4mBtn.MouseButton1Click:Connect(function()
     if setclipboard then
-        setclipboard("https://link4m.com/example") -- Thay link thực tế của bạn vào đây nếu cần
+        setclipboard("https://link4m.net/DoGHs0MS")
         StatusLabel.TextColor3 = Color3.fromRGB(0, 220, 220)
         StatusLabel.Text = "✅ Đã sao chép Link 4m vào clipboard!"
     end
@@ -160,7 +160,7 @@ Instance.new("UICorner", Link4SubBtn).CornerRadius = UDim.new(0, 6)
 
 Link4SubBtn.MouseButton1Click:Connect(function()
     if setclipboard then
-        setclipboard("https://link4sub.com/example") -- Thay link thực tế của bạn vào đây nếu cần
+        setclipboard("https://link4sub.com/DLRKEw8ev5")
         StatusLabel.TextColor3 = Color3.fromRGB(0, 220, 220)
         StatusLabel.Text = "✅ Đã sao chép Link 4 sub vào clipboard!"
     end
@@ -507,9 +507,17 @@ end
 CreateMenuButton("Blox Fruit", bfPage)
 CreateMenuButton("Steal An Egg", saePage)
 
--- ==================== CÁC SCRIPT (ĐÃ LỌC BỎ THEO YÊU CẦU) ====================
+-- ==================== CÁC SCRIPT (STEAL AN EGG) - REALKID ĐÃ ĐƯA LÊN ĐẦU ====================
+AddScriptButton(saePage, "Realkid", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/realkidhub/realkid/refs/heads/main/main.lua"))()
+end)
+
 AddScriptButton(saePage, "Speed Hub X", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
+end)
+
+AddScriptButton(saePage, "Night Hub V1", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/StealEggOnly.luau"))()
 end)
 
 AddScriptButton(saePage, "Night Hub V2", function()
@@ -680,6 +688,15 @@ end)
 
 AddScriptButton(saePage, "Chiyo Hub", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/kaisenlmao/loader/refs/heads/main/chiyo.lua"))()
+end)
+
+AddScriptButton(saePage, "ChilliHub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/kadit9999/stealanegg/refs/heads/main/chilly.lua"))()
+end)
+
+AddScriptButton(saePage, "NoName", function()
+    _G.script_key = "wFCpjnuWREjHWOhXYamFecssieCAQNdy"
+    loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/359e97f8618e9008afe5f496184ebb7c.lua"))()
 end)
 
 -- Blox Fruit Script
