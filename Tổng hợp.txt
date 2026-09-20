@@ -1,50 +1,8 @@
--- [[ BRAKYO HUB - ONE-TIME KEY SYSTEM (12 HOURS LOOP) ]]
+-- [[ BRAKYO HUB - BYPASS KEY SYSTEM ]]
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
-local HttpService = game:GetService("HttpService")
 local Player = Players.LocalPlayer
-
-local function getHWID()
-    local hwid = ""
-    if gethwid then
-        hwid = gethwid()
-    elseif syn and syn.get_hwid then
-        hwid = syn.get_hwid()
-    elseif RbxAnalyticsService then
-        pcall(function()
-            hwid = RbxAnalyticsService:GetClientId()
-        end)
-    end
-    if hwid == "" then
-        hwid = tostring(Player.UserId)
-    end
-    return hwid
-end
-
-local playerHWID = getHWID()
-local saveFileName = "BrakyoHub_KeyDatabase.json"
-
--- Quản lý dữ liệu key đã sử dụng và thời gian hiệu lực
-local function loadKeyData()
-    if writefile and readfile and isfile and isfile(saveFileName) then
-        local success, data = pcall(function()
-            return HttpService:JSONDecode(readfile(saveFileName))
-        end)
-        if success and type(data) == "table" then
-            return data
-        end
-    end
-    return {usedKeys = {}, expiresAt = 0}
-end
-
-local function saveKeyData(data)
-    if writefile then
-        pcall(function()
-            writefile(saveFileName, HttpService:JSONEncode(data))
-        end)
-    end
-end
 
 if CoreGui:FindFirstChild("BrakyoHub") then
     CoreGui.BrakyoHub:Destroy()
@@ -54,153 +12,6 @@ local BrakyoHub = Instance.new("ScreenGui")
 BrakyoHub.Name = "BrakyoHub"
 BrakyoHub.Parent = CoreGui
 BrakyoHub.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
--- Danh sách 30 Key mới dạng "BK - ......"
-local ValidKeys = {
-    "BK - 9xK2mL7p", "BK - 3vQ5wN1r", "BK - 8hY4jK6f", "BK - 2zX8mL3p", "BK - 5tR1vB9k",
-    "BK - 7nK6xH4m", "BK - 4pL2qW8s", "BK - 6jM9vN1z", "BK - 1kP3zX5q", "BK - 8bN7mC2v",
-    "BK - 4hF9gD6s", "BK - 2tY5uI8o", "BK - 9rE3wQ1a", "BK - 6zX4cV7b", "BK - 3nJ8mK2l",
-    "BK - 7pL1oI9u", "BK - 5fD2sA4g", "BK - 1vC6xZ8n", "BK - 8qW9eR3t", "BK - 4uI5oP7y",
-    "BK - 2aS3dF6g", "BK - 9mN8bV1c", "BK - 6kL7pJ4h", "BK - 3xZ2xC5v", "BK - 7tY1uI9o",
-    "BK - 5rE4wQ8a", "BK - 1hG2jK6l", "BK - 8pL3oI7u", "BK - 4fD9sA2g", "BK - 6vC1xZ5n"
-}
-
--- ==================== KIỂM TRA TRẠNG THÁI 12 TIẾNG ====================
-local keyData = loadKeyData()
-local currentTime = os.time()
-local isAlreadyAuthorized = (currentTime < keyData.expiresAt)
-
--- ==================== KEY SYSTEM FRAME ====================
-local KeySystemFrame = Instance.new("Frame", BrakyoHub)
-KeySystemFrame.Name = "KeySystemFrame"
-KeySystemFrame.BackgroundColor3 = Color3.fromRGB(18, 26, 32)
-KeySystemFrame.BackgroundTransparency = 0.15
-KeySystemFrame.BorderSizePixel = 0
-KeySystemFrame.Position = UDim2.new(0.5, -200, 0.5, -135)
-KeySystemFrame.Size = UDim2.new(0, 400, 0, 270)
-KeySystemFrame.Draggable = true
-KeySystemFrame.Active = true
-KeySystemFrame.ClipsDescendants = true
-KeySystemFrame.Visible = not isAlreadyAuthorized
-
-Instance.new("UICorner", KeySystemFrame).CornerRadius = UDim.new(0, 10)
-local KeyStroke = Instance.new("UIStroke", KeySystemFrame)
-KeyStroke.Color = Color3.fromRGB(0, 220, 220)
-KeyStroke.Thickness = 1.5
-
-local KeyTitle = Instance.new("TextLabel", KeySystemFrame)
-KeyTitle.BackgroundTransparency = 1
-KeyTitle.Position = UDim2.new(0, 0, 0, 12)
-KeyTitle.Size = UDim2.new(1, 0, 0, 30)
-KeyTitle.Font = Enum.Font.GothamBold
-KeyTitle.Text = "⚡ BRAKYO HUB - KEY SYSTEM"
-KeyTitle.TextColor3 = Color3.fromRGB(0, 220, 220)
-KeyTitle.TextSize = 16
-
-local KeyBox = Instance.new("TextBox", KeySystemFrame)
-KeyBox.BackgroundColor3 = Color3.fromRGB(28, 42, 53)
-KeyBox.BackgroundTransparency = 0.2
-KeyBox.BorderSizePixel = 0
-KeyBox.Position = UDim2.new(0.5, -170, 0, 50)
-KeyBox.Size = UDim2.new(0, 340, 0, 36)
-KeyBox.Font = Enum.Font.Gotham
-KeyBox.PlaceholderText = "Nhập Key mới của bạn..."
-KeyBox.Text = ""
-KeyBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-KeyBox.PlaceholderColor3 = Color3.fromRGB(150, 170, 190)
-KeyBox.TextSize = 13
-KeyBox.ClearTextOnFocus = false
-Instance.new("UICorner", KeyBox).CornerRadius = UDim.new(0, 6)
-
-local SubmitBtn = Instance.new("TextButton", KeySystemFrame)
-SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 220, 220)
-SubmitBtn.Position = UDim2.new(0.5, -170, 0, 94)
-SubmitBtn.Size = UDim2.new(0, 340, 0, 36)
-SubmitBtn.Font = Enum.Font.GothamBold
-SubmitBtn.Text = "XÁC NHẬN KEY"
-SubmitBtn.TextColor3 = Color3.fromRGB(15, 15, 20)
-SubmitBtn.TextSize = 13
-Instance.new("UICorner", SubmitBtn).CornerRadius = UDim.new(0, 6)
-
-local StatusLabel = Instance.new("TextLabel", KeySystemFrame)
-StatusLabel.BackgroundTransparency = 1
-StatusLabel.Position = UDim2.new(0, 0, 0, 138)
-StatusLabel.Size = UDim2.new(1, 0, 0, 30)
-StatusLabel.Font = Enum.Font.GothamMedium
-StatusLabel.Text = ""
-StatusLabel.TextColor3 = Color3.fromRGB(180, 200, 220)
-StatusLabel.TextSize = 12
-
-local Link4mBtn = Instance.new("TextButton", KeySystemFrame)
-Link4mBtn.BackgroundColor3 = Color3.fromRGB(45, 60, 75)
-Link4mBtn.Position = UDim2.new(0.5, -170, 0, 180)
-Link4mBtn.Size = UDim2.new(0, 162, 0, 34)
-Link4mBtn.Font = Enum.Font.GothamBold
-Link4mBtn.Text = "GET KEY: LINK 4M"
-Link4mBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-Link4mBtn.TextSize = 12
-Instance.new("UICorner", Link4mBtn).CornerRadius = UDim.new(0, 6)
-
-Link4mBtn.MouseButton1Click:Connect(function()
-    if setclipboard then
-        setclipboard("https://link4m.net/DoGHs0MS")
-        StatusLabel.TextColor3 = Color3.fromRGB(0, 220, 220)
-        StatusLabel.Text = "✅ Đã sao chép Link 4m vào clipboard!"
-    end
-end)
-
-local Link4SubBtn = Instance.new("TextButton", KeySystemFrame)
-Link4SubBtn.BackgroundColor3 = Color3.fromRGB(45, 60, 75)
-Link4SubBtn.Position = UDim2.new(0.5, 8, 0, 180)
-Link4SubBtn.Size = UDim2.new(0, 162, 0, 34)
-Link4SubBtn.Font = Enum.Font.GothamBold
-Link4SubBtn.Text = "GET KEY: LINK 4 SUB"
-Link4SubBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-Link4SubBtn.TextSize = 12
-Instance.new("UICorner", Link4SubBtn).CornerRadius = UDim.new(0, 6)
-
-Link4SubBtn.MouseButton1Click:Connect(function()
-    if setclipboard then
-        setclipboard("https://link4sub.com/DLRKEw8ev5")
-        StatusLabel.TextColor3 = Color3.fromRGB(0, 220, 220)
-        StatusLabel.Text = "✅ Đã sao chép Link 4 sub vào clipboard!"
-    end
-end)
-
--- ==================== DISCLAIMER FRAME ====================
-local DisclaimerFrame = Instance.new("Frame", BrakyoHub)
-DisclaimerFrame.Name = "DisclaimerFrame"
-DisclaimerFrame.BackgroundColor3 = Color3.fromRGB(18, 26, 32)
-DisclaimerFrame.BackgroundTransparency = 0.1
-DisclaimerFrame.BorderSizePixel = 0
-DisclaimerFrame.Position = UDim2.new(0.5, -200, 0.5, -110)
-DisclaimerFrame.Size = UDim2.new(0, 400, 0, 220)
-DisclaimerFrame.Visible = false
-DisclaimerFrame.ZIndex = 20
-Instance.new("UICorner", DisclaimerFrame).CornerRadius = UDim.new(0, 10)
-local DiscStroke = Instance.new("UIStroke", DisclaimerFrame)
-DiscStroke.Color = Color3.fromRGB(0, 220, 220)
-DiscStroke.Thickness = 1.5
-
-local DiscText = Instance.new("TextLabel", DisclaimerFrame)
-DiscText.BackgroundTransparency = 1
-DiscText.Position = UDim2.new(0, 20, 0, 20)
-DiscText.Size = UDim2.new(1, -40, 0, 110)
-DiscText.Font = Enum.Font.GothamMedium
-DiscText.Text = "⚠️ Tất cả script đều lấy trên mạng, có key thì ae get và không chịu trách nhiệm"
-DiscText.TextColor3 = Color3.fromRGB(255, 255, 255)
-DiscText.TextSize = 14
-DiscText.TextWrapped = true
-
-local AcceptDiscBtn = Instance.new("TextButton", DisclaimerFrame)
-AcceptDiscBtn.BackgroundColor3 = Color3.fromRGB(0, 220, 220)
-AcceptDiscBtn.Position = UDim2.new(0.5, -75, 0, 145)
-AcceptDiscBtn.Size = UDim2.new(0, 150, 0, 38)
-AcceptDiscBtn.Font = Enum.Font.GothamBold
-AcceptDiscBtn.Text = "XÁC NHẬN"
-AcceptDiscBtn.TextColor3 = Color3.fromRGB(15, 15, 20)
-AcceptDiscBtn.TextSize = 13
-Instance.new("UICorner", AcceptDiscBtn).CornerRadius = UDim.new(0, 6)
 
 -- ==================== MIN BUTTON ====================
 local MinButton = Instance.new("TextButton", BrakyoHub)
@@ -234,7 +45,7 @@ MainFrame.Size = UDim2.new(0, 550, 0, 350)
 MainFrame.Draggable = true
 MainFrame.Active = true
 MainFrame.ClipsDescendants = true
-MainFrame.Visible = isAlreadyAuthorized
+MainFrame.Visible = true -- Mở trực tiếp không cần key
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
 local MainStroke = Instance.new("UIStroke", MainFrame)
 MainStroke.Color = Color3.fromRGB(0, 220, 220)
@@ -310,59 +121,7 @@ end
 
 local bfPage = CreateTab("Blox Fruit")
 local saePage = CreateTab("Steal An Egg")
-
-SubmitBtn.MouseButton1Click:Connect(function()
-    local enteredKey = KeyBox.Text:gsub("^%s+", ""):gsub("%s+$", "")
-    local isValid = false
-    
-    -- Kiểm tra xem key có tồn tại trong danh sách hệ thống không
-    for _, k in ipairs(ValidKeys) do
-        if enteredKey == k then
-            isValid = true
-            break
-        end
-    end
-    
-    if isValid then
-        -- Kiểm tra xem key này đã từng được dùng chưa
-        local isAlreadyUsed = false
-        if keyData.usedKeys then
-            for _, usedKey in ipairs(keyData.usedKeys) do
-                if usedKey == enteredKey then
-                    isAlreadyUsed = true
-                    break
-                end
-            end
-        else
-            keyData.usedKeys = {}
-        end
-        
-        if isAlreadyUsed then
-            StatusLabel.TextColor3 = Color3.fromRGB(255, 90, 90)
-            StatusLabel.Text = "❌ Key này đã được sử dụng rồi, hãy dùng key mới!"
-        else
-            -- Đánh dấu key này đã hỏng/dùng rồi, đồng thời cấp quyền 12 tiếng mới
-            table.insert(keyData.usedKeys, enteredKey)
-            keyData.expiresAt = os.time() + (12 * 3600)
-            saveKeyData(keyData)
-
-            StatusLabel.TextColor3 = Color3.fromRGB(0, 220, 220)
-            StatusLabel.Text = "✅ Thành công! Mở Hub trong 12 tiếng."
-            task.wait(0.5)
-            KeySystemFrame:Destroy()
-            DisclaimerFrame.Visible = true
-        end
-    else
-        StatusLabel.TextColor3 = Color3.fromRGB(255, 90, 90)
-        StatusLabel.Text = "❌ Key không chính xác!"
-    end
-end)
-
-AcceptDiscBtn.MouseButton1Click:Connect(function()
-    DisclaimerFrame:Destroy()
-    MainFrame.Visible = true
-    bfPage.Visible = true
-end)
+bfPage.Visible = true -- Mặc định mở tab Blox Fruit đầu tiên
 
 local TitleLabel = Instance.new("TextLabel", MainFrame)
 TitleLabel.BackgroundTransparency = 1
@@ -509,7 +268,7 @@ end
 CreateMenuButton("Blox Fruit", bfPage)
 CreateMenuButton("Steal An Egg", saePage)
 
--- ==================== CÁC SCRIPT (STEAL AN EGG & BLOX FRUIT) ====================
+-- ==================== CÁC SCRIPT ====================
 AddScriptButton(saePage, "Realkid", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/realkidhub/realkid/refs/heads/main/main.lua"))()
 end)
