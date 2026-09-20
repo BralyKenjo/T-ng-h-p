@@ -1,9 +1,8 @@
--- [[ BRAKYO HUB - UPDATED KEY SYSTEM ]]
+-- [[ BRAKYO HUB - TIMED HWID KEY SYSTEM (12 HOURS) ]]
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local Player = Players.LocalPlayer
-local HttpService = game:GetService("HttpService")
 
 if CoreGui:FindFirstChild("BrakyoHub") then
     CoreGui.BrakyoHub:Destroy()
@@ -14,7 +13,7 @@ BrakyoHub.Name = "BrakyoHub"
 BrakyoHub.Parent = CoreGui
 BrakyoHub.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- Cấu hình danh sách Key hợp lệ và Key đặc biệt
+-- Danh sách Key vĩnh viễn của bạn (Không bao giờ hết hạn nếu không sửa code)
 local ValidKeys = {
     "O5J6sql",
     "6lhq071K",
@@ -22,51 +21,25 @@ local ValidKeys = {
     "Kr4i8P2k",
     "Ob927pa",
     "BK-7vQ9xL2mR8pT4zN",
-    "BK-X5nK8wP3qY7dH6s",
-    "BK-9mF2rV8xC5kL7qT",
-    "BK-Q4zN7pX2wM9sK6dR",
-    "BK-H8tL3vQ7nY5xP2mK",
-    "BK-R6pW9kT4zX8qN3vL",
-    "BK-M7xC2qV9nP5rK8tH",
-    "BK-Y3dN8mL6wQ2xR9pV"
+    "BK-X5nK8wP3qY7dH6s"
 }
 
-local SpecialKey = "BraKyo1421"
-local SessionDuration = 12 * 60 * 60 -- 12 tiếng hết hạn phiên, quay về nhập key
+-- ==================== CƠ CHẾ HWID & THỜI GIAN 12 GIỜ ====================
+-- Sử dụng getgenv() để lưu mốc thời gian riêng cho từng phiên/thiết bị
+getgenv().BrakyoKeyData = getgenv().BrakyoKeyData or {
+    Authorized = false,
+    ExpireTime = 0
+}
 
-local UsedDeviceFile = "BrakyoHub_DeviceLocked.json"
-local ActiveSessionFile = "BrakyoHub_ActiveSession.json"
-
-local function IsDeviceLocked()
-    if not (readfile and isfile) then return false end
-    return isfile(UsedDeviceFile)
-end
-
-local function LockDevicePermanently()
-    if writefile then
-        pcall(function()
-            writefile(UsedDeviceFile, HttpService:JSONEncode({LockedTime = os.time()}))
-        end)
+local DURATION_HOURS = 12 -- Thời gian hiệu lực (12 giờ)
+local function CheckAuthorization()
+    local currentTime = os.time()
+    if getgenv().BrakyoKeyData.Authorized and currentTime < getgenv().BrakyoKeyData.ExpireTime then
+        return true -- Vẫn còn hạn trong 12 tiếng của thiết bị này
+    else
+        getgenv().BrakyoKeyData.Authorized = false
+        return false -- Đã hết hạn hoặc chưa nhập
     end
-end
-
--- Kiểm tra phiên làm việc (12 tiếng đối với key thường)
-local function CheckActiveSession()
-    if not (readfile and writefile and isfile and delfile) then return false end
-    if isfile(ActiveSessionFile) then
-        local success, data = pcall(function()
-            return HttpService:JSONDecode(readfile(ActiveSessionFile))
-        end)
-        if success and data and data.ExpireTime then
-            if os.time() < data.ExpireTime then
-                return true
-            else
-                -- Hết 12 tiếng -> Xóa file session để bắt buộc nhập lại key (key cũ vẫn giữ nguyên trong code)
-                delfile(ActiveSessionFile)
-            end
-        end
-    end
-    return false
 end
 
 -- ==================== KEY SYSTEM FRAME ====================
@@ -102,7 +75,7 @@ KeyBox.BorderSizePixel = 0
 KeyBox.Position = UDim2.new(0.5, -170, 0, 50)
 KeyBox.Size = UDim2.new(0, 340, 0, 36)
 KeyBox.Font = Enum.Font.Gotham
-KeyBox.PlaceholderText = "Nhập Key của bạn..."
+KeyBox.PlaceholderText = "Nhập Key của bạn (Hiệu lực 12h)..."
 KeyBox.Text = ""
 KeyBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 KeyBox.PlaceholderColor3 = Color3.fromRGB(150, 170, 190)
@@ -310,45 +283,32 @@ end
 local bfPage = CreateTab("Blox Fruit")
 local saePage = CreateTab("Steal An Egg")
 
-if CheckActiveSession() then
-    KeySystemFrame:Destroy()
-    DisclaimerFrame:Destroy()
-    MainFrame.Visible = true
-    bfPage.Visible = true
+-- Xử lý logic kiểm tra trạng thái ngay khi khởi chạy script
+if CheckAuthorization() then
+    KeySystemFrame.Visible = false
+    DisclaimerFrame.Visible = true
+else
+    KeySystemFrame.Visible = true
 end
 
 SubmitBtn.MouseButton1Click:Connect(function()
     local enteredKey = KeyBox.Text:gsub("^%s+", ""):gsub("%s+$", "")
     local isValid = false
     
-    -- Kiểm tra nếu là key đặc biệt BraKyo
-    if enteredKey == SpecialKey then
-        if IsDeviceLocked() then
-            StatusLabel.TextColor3 = Color3.fromRGB(255, 90, 90)
-            StatusLabel.Text = "❌ Thiết bị này đã dùng key đặc biệt này rồi và không thể dùng lại nữa!"
-            return
-        end
-        LockDevicePermanently()
-        isValid = true
-    else
-        -- Kiểm tra trong danh sách key thường
-        for _, k in ipairs(ValidKeys) do
-            if enteredKey == k then
-                isValid = true
-                break
-            end
+    for _, k in ipairs(ValidKeys) do
+        if enteredKey == k then
+            isValid = true
+            break
         end
     end
     
     if isValid then
-        -- Lưu phiên làm việc 12 tiếng (cho cả key thường và đặc biệt)
-        if writefile then
-            local expireTime = os.time() + SessionDuration
-            writefile(ActiveSessionFile, HttpService:JSONEncode({ExpireTime = expireTime}))
-        end
+        -- Lưu mốc thời gian hiệu lực 12 giờ cho thiết bị này (tính bằng giây)
+        getgenv().BrakyoKeyData.Authorized = true
+        getgenv().BrakyoKeyData.ExpireTime = os.time() + (DURATION_HOURS * 3600)
         
         StatusLabel.TextColor3 = Color3.fromRGB(0, 220, 220)
-        StatusLabel.Text = "✅ Thành công!"
+        StatusLabel.Text = "✅ Thành công! Có hiệu lực trong 12 giờ."
         task.wait(0.8)
         KeySystemFrame:Destroy()
         DisclaimerFrame.Visible = true
