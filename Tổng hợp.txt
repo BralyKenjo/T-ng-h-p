@@ -1,4 +1,4 @@
--- [[ BRAKYO HUB - UPDATED ]]
+-- [[ BRAKYO HUB - FIXED & UPDATED ]]
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -31,7 +31,7 @@ local ValidKeys = {
     ["BK-Y3dN8mL6wQ2xR9pV"] = true
 }
 
--- Cấu hình Key đặc biệt (Giữ nguyên ngầm định)
+-- Cấu hình Key đặc biệt
 local SpecialKey = "BraKyo1421"
 local SpecialKeyDuration = 6 * 60 * 60 
 local NormalKeyDuration = 12 * 60 * 60 
@@ -129,7 +129,7 @@ StatusLabel.Text = ""
 StatusLabel.TextColor3 = Color3.fromRGB(180, 200, 220)
 StatusLabel.TextSize = 12
 
--- 2 Nút Get Key (Đã gắn link thật)
+-- 2 Nút Get Key
 local Link4mBtn = Instance.new("TextButton", KeySystemFrame)
 Link4mBtn.BackgroundColor3 = Color3.fromRGB(45, 60, 75)
 Link4mBtn.Position = UDim2.new(0.5, -170, 0, 180)
@@ -317,8 +317,9 @@ if CheckActiveSession() then
     bfPage.Visible = true
 end
 
+-- ĐÃ FIX: Tự động loại bỏ khoảng trắng thừa đầu/cuối chuỗi key khi nhập
 SubmitBtn.MouseButton1Click:Connect(function()
-    local enteredKey = KeyBox.Text
+    local enteredKey = KeyBox.Text:gsub("^%s+", ""):gsub("%s+$", "")
     
     if enteredKey == SpecialKey then
         if IsDeviceLocked() then
@@ -352,7 +353,7 @@ SubmitBtn.MouseButton1Click:Connect(function()
         DisclaimerFrame.Visible = true
     else
         StatusLabel.TextColor3 = Color3.fromRGB(255, 90, 90)
-        StatusLabel.Text = "❌ Key không chính xác!"
+        StatusLabel.Text = "❌ Key không chính xác hoặc đã hết hạn!"
     end
 end)
 
@@ -507,7 +508,7 @@ end
 CreateMenuButton("Blox Fruit", bfPage)
 CreateMenuButton("Steal An Egg", saePage)
 
--- ==================== CÁC SCRIPT (STEAL AN EGG) - REALKID ĐÃ ĐƯA LÊN ĐẦU ====================
+-- ==================== CÁC SCRIPT (STEAL AN EGG) ====================
 AddScriptButton(saePage, "Realkid", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/realkidhub/realkid/refs/heads/main/main.lua"))()
 end)
@@ -697,6 +698,10 @@ end)
 AddScriptButton(saePage, "NoName", function()
     _G.script_key = "wFCpjnuWREjHWOhXYamFecssieCAQNdy"
     loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/359e97f8618e9008afe5f496184ebb7c.lua"))()
+end)
+
+AddScriptButton(saePage, "Realkid", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/realkidhub/realkid/refs/heads/main/main.lua"))()
 end)
 
 -- Blox Fruit Script
