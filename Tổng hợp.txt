@@ -1,4 +1,4 @@
--- [[ BRAKYO HUB - OPTIMIZED & SMOOTH VERSION ]]
+-- [[ BRAKYO HUB - ONE-TIME SPECIAL KEY SYSTEM ]]
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -13,28 +13,46 @@ BrakyoHub.Name = "BrakyoHub"
 BrakyoHub.Parent = CoreGui
 BrakyoHub.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-local ValidKeys = {
-    ["O5J6sql"] = true,
-    ["6lhq071K"] = true,
-    ["Y61Vql9d"] = true,
-    ["Kr4i8P2k"] = true,
-    ["Ob927pa"] = true
-}
+-- Cấu hình Key đặc biệt
+local SpecialKey = "BraKyo1421"
+local KeyDuration = 6 * 60 * 60 -- Thời hạn 6 tiếng
+local UsedDeviceFile = "BrakyoHub_DeviceLocked.json" -- File khóa thiết bị vĩnh viễn sau khi dùng key đặc biệt
+local ActiveKeyFile = "BrakyoHub_ActiveSession.json" -- File lưu thời gian phiên đang chạy
 
-local FileName = "BrakyoHub_KeyData.json"
-local KeyDuration = 12 * 60 * 60
+-- Hàm kiểm tra xem thiết bị này đã từng dùng key đặc biệt này chưa (Chống dùng lại vĩnh viễn trên máy)
+local function IsDeviceLocked()
+    if not (readfile and isfile) then return false end
+    if isfile(UsedDeviceFile) then
+        return true
+    end
+    return false
+end
 
-local function CheckSavedKey()
+-- Hàm khóa thiết bị lại sau khi đã nhập key đặc biệt
+local function LockDevicePermanently()
+    if writefile then
+        pcall(function()
+            local lockData = game:GetService("HttpService"):JSONEncode({
+                LockedTime = os.time(),
+                Note = "Device has already used the one-time special key."
+            })
+            writefile(UsedDeviceFile, lockData)
+        end)
+    end
+end
+
+-- Hàm kiểm tra xem phiên đăng nhập 6 tiếng hiện tại còn hạn không
+local function CheckActiveSession()
     if not (readfile and writefile and isfile and delfile) then return false end
-    if isfile(FileName) then
+    if isfile(ActiveKeyFile) then
         local success, data = pcall(function()
-            return game:GetService("HttpService"):JSONDecode(readfile(FileName))
+            return game:GetService("HttpService"):JSONDecode(readfile(ActiveKeyFile))
         end)
         if success and data and data.ExpireTime then
             if os.time() < data.ExpireTime then
                 return true
             else
-                delfile(FileName)
+                delfile(ActiveKeyFile) -- Hết hạn 6 tiếng thì xóa phiên hoạt động
             end
         end
     end
@@ -69,7 +87,7 @@ KeyTitle.BackgroundTransparency = 1
 KeyTitle.Position = UDim2.new(0, 0, 0, 12)
 KeyTitle.Size = UDim2.new(1, 0, 0, 30)
 KeyTitle.Font = Enum.Font.GothamBold
-KeyTitle.Text = "⚡ BRAKYO HUB - KEY SYSTEM"
+KeyTitle.Text = "⚡ BRAKYO HUB - ONE-TIME KEY"
 KeyTitle.TextColor3 = Color3.fromRGB(0, 220, 220)
 KeyTitle.TextSize = 16
 
@@ -81,7 +99,7 @@ KeyBox.BorderSizePixel = 0
 KeyBox.Position = UDim2.new(0.5, -170, 0, 50)
 KeyBox.Size = UDim2.new(0, 340, 0, 36)
 KeyBox.Font = Enum.Font.Gotham
-KeyBox.PlaceholderText = "Nhập Key của bạn vào đây..."
+KeyBox.PlaceholderText = "Nhập Key đặc biệt của bạn..."
 KeyBox.Text = ""
 KeyBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 KeyBox.PlaceholderColor3 = Color3.fromRGB(150, 170, 190)
@@ -106,71 +124,16 @@ local SubmitCorner = Instance.new("UICorner")
 SubmitCorner.CornerRadius = UDim.new(0, 6)
 SubmitCorner.Parent = SubmitBtn
 
--- Nút Lấy Key: link4sub
-local GetKeyBtn = Instance.new("TextButton")
-GetKeyBtn.Parent = KeySystemFrame
-GetKeyBtn.BackgroundColor3 = Color3.fromRGB(28, 42, 53)
-GetKeyBtn.BackgroundTransparency = 0.2
-GetKeyBtn.Position = UDim2.new(0.5, -170, 0, 138)
-GetKeyBtn.Size = UDim2.new(0, 162, 0, 36)
-GetKeyBtn.Font = Enum.Font.GothamBold
-GetKeyBtn.Text = "link4sub"
-GetKeyBtn.TextColor3 = Color3.fromRGB(230, 245, 255)
-GetKeyBtn.TextSize = 12
-
-local GetKeyCorner = Instance.new("UICorner")
-GetKeyCorner.CornerRadius = UDim.new(0, 6)
-GetKeyCorner.Parent = GetKeyBtn
-
--- Nút Lấy Key: link4m
-local GetKeyBtn2 = Instance.new("TextButton")
-GetKeyBtn2.Parent = KeySystemFrame
-GetKeyBtn2.BackgroundColor3 = Color3.fromRGB(28, 42, 53)
-GetKeyBtn2.BackgroundTransparency = 0.2
-GetKeyBtn2.Position = UDim2.new(0.5, 8, 0, 138)
-GetKeyBtn2.Size = UDim2.new(0, 162, 0, 36)
-GetKeyBtn2.Font = Enum.Font.GothamBold
-GetKeyBtn2.Text = "link4m"
-GetKeyBtn2.TextColor3 = Color3.fromRGB(230, 245, 255)
-GetKeyBtn2.TextSize = 12
-
-local GetKeyCorner2 = Instance.new("UICorner")
-GetKeyCorner2.CornerRadius = UDim.new(0, 6)
-GetKeyCorner2.Parent = GetKeyBtn2
-
 local StatusLabel = Instance.new("TextLabel")
 StatusLabel.Parent = KeySystemFrame
 StatusLabel.BackgroundTransparency = 1
-StatusLabel.Position = UDim2.new(0, 0, 0, 182)
-StatusLabel.Size = UDim2.new(1, 0, 0, 25)
+StatusLabel.Position = UDim2.new(0, 0, 0, 145)
+StatusLabel.Size = UDim2.new(1, 0, 0, 60)
 StatusLabel.Font = Enum.Font.GothamMedium
-StatusLabel.Text = ""
-StatusLabel.TextColor3 = Color3.fromRGB(255, 90, 90)
-StatusLabel.TextSize = 12
-
-GetKeyBtn.MouseButton1Click:Connect(function()
-    local link = "https://link4sub.com/DLRKEw8ev5"
-    if setclipboard then
-        setclipboard(link)
-        StatusLabel.TextColor3 = Color3.fromRGB(0, 220, 220)
-        StatusLabel.Text = "Đã sao chép link link4sub vào Clipboard!"
-    else
-        StatusLabel.TextColor3 = Color3.fromRGB(255, 90, 90)
-        StatusLabel.Text = "Link link4sub: " .. link
-    end
-end)
-
-GetKeyBtn2.MouseButton1Click:Connect(function()
-    local link = "https://link4m.net/DoGHs0MS"
-    if setclipboard then
-        setclipboard(link)
-        StatusLabel.TextColor3 = Color3.fromRGB(0, 220, 220)
-        StatusLabel.Text = "Đã sao chép link link4m vào Clipboard!"
-    else
-        StatusLabel.TextColor3 = Color3.fromRGB(255, 90, 90)
-        StatusLabel.Text = "Link link4m: " .. link
-    end
-end)
+StatusLabel.Text = "Lưu ý: Key 'BraKyo1421' chỉ dùng được ĐÚNG 1 LẦN duy nhất trên thiết bị này và có thời hạn hoạt động 6 tiếng."
+StatusLabel.TextColor3 = Color3.fromRGB(180, 200, 220)
+StatusLabel.TextSize = 11
+StatusLabel.TextWrapped = true
 
 -- ==================== DISCLAIMER FRAME ====================
 local DisclaimerFrame = Instance.new("Frame")
@@ -214,9 +177,7 @@ AcceptDiscBtn.Text = "XÁC NHẬN"
 AcceptDiscBtn.TextColor3 = Color3.fromRGB(15, 15, 20)
 AcceptDiscBtn.TextSize = 13
 
-local AcceptDiscCorner = Instance.new("UICorner")
-AcceptDiscCorner.CornerRadius = UDim.new(0, 6)
-AcceptDiscCorner.Parent = AcceptDiscBtn
+Instance.new("UICorner", AcceptDiscBtn).CornerRadius = UDim.new(0, 6)
 
 -- ==================== MIN BUTTON ====================
 local MinButton = Instance.new("TextButton")
@@ -235,12 +196,8 @@ MinButton.Draggable = true
 MinButton.Visible = false
 MinButton.Active = true
 
-local MinCorner = Instance.new("UICorner")
-MinCorner.CornerRadius = UDim.new(1, 0)
-MinCorner.Parent = MinButton
-
-local MinStroke = Instance.new("UIStroke")
-MinStroke.Parent = MinButton
+Instance.new("UICorner", MinButton).CornerRadius = UDim.new(1, 0)
+local MinStroke = Instance.new("UIStroke", MinButton)
 MinStroke.Color = Color3.fromRGB(0, 220, 220)
 MinStroke.Transparency = 0.2
 MinStroke.Thickness = 2
@@ -259,12 +216,8 @@ MainFrame.Active = true
 MainFrame.ClipsDescendants = true
 MainFrame.Visible = false
 
-local MainCorner = Instance.new("UICorner")
-MainCorner.CornerRadius = UDim.new(0, 10)
-MainCorner.Parent = MainFrame
-
-local MainStroke = Instance.new("UIStroke")
-MainStroke.Parent = MainFrame
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
+local MainStroke = Instance.new("UIStroke", MainFrame)
 MainStroke.Color = Color3.fromRGB(0, 220, 220)
 MainStroke.Thickness = 1.5
 
@@ -278,8 +231,7 @@ ConfirmCloseFrame.Size = UDim2.new(1, 0, 1, 0)
 ConfirmCloseFrame.Visible = false
 ConfirmCloseFrame.ZIndex = 30
 
-local ConfirmText = Instance.new("TextLabel")
-ConfirmText.Parent = ConfirmCloseFrame
+local ConfirmText = Instance.new("TextLabel", ConfirmCloseFrame)
 ConfirmText.BackgroundTransparency = 1
 ConfirmText.Size = UDim2.new(1, 0, 0, 50)
 ConfirmText.Position = UDim2.new(0, 0, 0.35, 0)
@@ -289,8 +241,7 @@ ConfirmText.TextColor3 = Color3.fromRGB(255, 255, 255)
 ConfirmText.TextSize = 16
 ConfirmText.ZIndex = 31
 
-local YesBtn = Instance.new("TextButton")
-YesBtn.Parent = ConfirmCloseFrame
+local YesBtn = Instance.new("TextButton", ConfirmCloseFrame)
 YesBtn.BackgroundColor3 = Color3.fromRGB(220, 60, 60)
 YesBtn.Position = UDim2.new(0.5, -110, 0.55, 0)
 YesBtn.Size = UDim2.new(0, 100, 0, 35)
@@ -301,8 +252,7 @@ YesBtn.TextSize = 14
 YesBtn.ZIndex = 31
 Instance.new("UICorner", YesBtn).CornerRadius = UDim.new(0, 6)
 
-local NoBtn = Instance.new("TextButton")
-NoBtn.Parent = ConfirmCloseFrame
+local NoBtn = Instance.new("TextButton", ConfirmCloseFrame)
 NoBtn.BackgroundColor3 = Color3.fromRGB(45, 60, 75)
 NoBtn.Position = UDim2.new(0.5, 10, 0.55, 0)
 NoBtn.Size = UDim2.new(0, 100, 0, 35)
@@ -314,18 +264,14 @@ NoBtn.ZIndex = 31
 Instance.new("UICorner", NoBtn).CornerRadius = UDim.new(0, 6)
 
 -- ==================== TABS & CONTAINERS ====================
-local RightContainer = Instance.new("Frame")
+local RightContainer = Instance.new("Frame", MainFrame)
 RightContainer.Name = "RightContainer"
-RightContainer.Parent = MainFrame
 RightContainer.BackgroundColor3 = Color3.fromRGB(28, 42, 53)
 RightContainer.BackgroundTransparency = 0.2
 RightContainer.BorderSizePixel = 0
 RightContainer.Position = UDim2.new(0, 180, 0, 55)
 RightContainer.Size = UDim2.new(0, 358, 0, 280)
-
-local RightCorner = Instance.new("UICorner")
-RightCorner.CornerRadius = UDim.new(0, 6)
-RightCorner.Parent = RightContainer
+Instance.new("UICorner", RightContainer).CornerRadius = UDim.new(0, 6)
 
 local Pages = {}
 local function CreateTab(name)
@@ -339,8 +285,7 @@ local function CreateTab(name)
     Page.ScrollBarThickness = 4
     Page.Visible = false
     
-    local Layout = Instance.new("UIListLayout")
-    Layout.Parent = Page
+    local Layout = Instance.new("UIListLayout", Page)
     Layout.SortOrder = Enum.SortOrder.LayoutOrder
     Layout.Padding = UDim.new(0, 6)
     
@@ -351,31 +296,44 @@ end
 local bfPage = CreateTab("Blox Fruit")
 local saePage = CreateTab("Steal An Egg")
 
-if CheckSavedKey() then
+-- Nếu thiết bị đã có phiên hoạt động hợp lệ (chưa quá 6 tiếng từ lúc nhập key đặc biệt)
+if CheckActiveSession() then
     KeySystemFrame:Destroy()
     DisclaimerFrame:Destroy()
     MainFrame.Visible = true
     bfPage.Visible = true
 end
 
+-- Xử lý logic Xác nhận Key theo đúng ý bạn
 SubmitBtn.MouseButton1Click:Connect(function()
     local enteredKey = KeyBox.Text
-    if ValidKeys[enteredKey] then
-        StatusLabel.TextColor3 = Color3.fromRGB(0, 220, 220)
-        StatusLabel.Text = "Xác nhận thành công!"
+    
+    if enteredKey == SpecialKey then
+        -- Bước 1: Kiểm tra xem thiết bị này đã từng dùng key đặc biệt này bao giờ chưa
+        if IsDeviceLocked() then
+            StatusLabel.TextColor3 = Color3.fromRGB(255, 90, 90)
+            StatusLabel.Text = "❌ Thất bại! Thiết bị này đã từng sử dụng Key đặc biệt này rồi và không thể dùng lại nữa."
+            return
+        end
+        
+        -- Bước 2: Nếu chưa từng dùng, tiến hành khóa thiết bị vĩnh viễn và cấp hạn 6 tiếng cho phiên này
+        LockDevicePermanently()
         
         if writefile then
             local expireTime = os.time() + KeyDuration
-            local data = game:GetService("HttpService"):JSONEncode({ExpireTime = expireTime})
-            writefile(FileName, data)
+            local sessionData = game:GetService("HttpService"):JSONEncode({ExpireTime = expireTime})
+            writefile(ActiveKeyFile, sessionData)
         end
         
-        task.wait(0.5)
+        StatusLabel.TextColor3 = Color3.fromRGB(0, 220, 220)
+        StatusLabel.Text = "✅ Thành công! Kích hoạt thành công thời hạn 6 tiếng."
+        
+        task.wait(0.8)
         KeySystemFrame:Destroy()
         DisclaimerFrame.Visible = true
     else
         StatusLabel.TextColor3 = Color3.fromRGB(255, 90, 90)
-        StatusLabel.Text = "Key không chính xác hoặc đã hết hạn!"
+        StatusLabel.Text = "❌ Key không chính xác!"
     end
 end)
 
@@ -385,9 +343,7 @@ AcceptDiscBtn.MouseButton1Click:Connect(function()
     bfPage.Visible = true
 end)
 
-local TitleLabel = Instance.new("TextLabel")
-TitleLabel.Name = "TitleLabel"
-TitleLabel.Parent = MainFrame
+local TitleLabel = Instance.new("TextLabel", MainFrame)
 TitleLabel.BackgroundTransparency = 1
 TitleLabel.Position = UDim2.new(0, 18, 0, 12)
 TitleLabel.Size = UDim2.new(0, 150, 0, 30)
@@ -397,9 +353,7 @@ TitleLabel.TextColor3 = Color3.fromRGB(0, 220, 220)
 TitleLabel.TextSize = 15
 TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-local MinimizeBtn = Instance.new("TextButton")
-MinimizeBtn.Name = "MinimizeBtn"
-MinimizeBtn.Parent = MainFrame
+local MinimizeBtn = Instance.new("TextButton", MainFrame)
 MinimizeBtn.BackgroundTransparency = 1
 MinimizeBtn.Position = UDim2.new(1, -65, 0, 12)
 MinimizeBtn.Size = UDim2.new(0, 25, 0, 25)
@@ -408,9 +362,7 @@ MinimizeBtn.Text = "-"
 MinimizeBtn.TextColor3 = Color3.fromRGB(180, 200, 220)
 MinimizeBtn.TextSize = 18
 
-local CloseBtn = Instance.new("TextButton")
-CloseBtn.Name = "CloseBtn"
-CloseBtn.Parent = MainFrame
+local CloseBtn = Instance.new("TextButton", MainFrame)
 CloseBtn.BackgroundTransparency = 1
 CloseBtn.Position = UDim2.new(1, -35, 0, 12)
 CloseBtn.Size = UDim2.new(0, 25, 0, 25)
@@ -419,28 +371,21 @@ CloseBtn.Text = "X"
 CloseBtn.TextColor3 = Color3.fromRGB(255, 90, 90)
 CloseBtn.TextSize = 14
 
-CloseBtn.MouseButton1Click:Connect(function()
-    ConfirmCloseFrame.Visible = true
-end)
-
+CloseBtn.MouseButton1Click:Connect(function() ConfirmCloseFrame.Visible = true end)
 YesBtn.MouseButton1Click:Connect(function()
     local tween = TweenService:Create(MainFrame, TweenInfo.new(0.2, Enum.EasingStyle.Cubic, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0)})
     tween:Play()
     tween.Completed:Wait()
     BrakyoHub:Destroy()
 end)
-
-NoBtn.MouseButton1Click:Connect(function()
-    ConfirmCloseFrame.Visible = false
-end)
+NoBtn.MouseButton1Click:Connect(function() ConfirmCloseFrame.Visible = false end)
 
 local function animatePopup(show)
     if show then
         MinButton.Visible = false
         MainFrame.Visible = true
         MainFrame.Size = UDim2.new(0, 0, 0, 0)
-        local tween = TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {Size = UDim2.new(0, 550, 0, 350)})
-        tween:Play()
+        TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {Size = UDim2.new(0, 550, 0, 350)}):Play()
     else
         local tween = TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Cubic, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0)})
         tween:Play()
@@ -450,17 +395,10 @@ local function animatePopup(show)
     end
 end
 
-MinimizeBtn.MouseButton1Click:Connect(function()
-    animatePopup(false)
-end)
+MinimizeBtn.MouseButton1Click:Connect(function() animatePopup(false) end)
+MinButton.MouseButton1Click:Connect(function() animatePopup(true) end)
 
-MinButton.MouseButton1Click:Connect(function()
-    animatePopup(true)
-end)
-
-local SearchBox = Instance.new("TextBox")
-SearchBox.Name = "SearchBox"
-SearchBox.Parent = MainFrame
+local SearchBox = Instance.new("TextBox", MainFrame)
 SearchBox.BackgroundColor3 = Color3.fromRGB(28, 42, 53)
 SearchBox.BackgroundTransparency = 0.2
 SearchBox.BorderSizePixel = 0
@@ -473,29 +411,21 @@ SearchBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 SearchBox.PlaceholderColor3 = Color3.fromRGB(150, 170, 190)
 SearchBox.TextSize = 13
 SearchBox.ClearTextOnFocus = false
+Instance.new("UICorner", SearchBox).CornerRadius = UDim.new(0, 6)
 
-local SearchCorner = Instance.new("UICorner")
-SearchCorner.CornerRadius = UDim.new(0, 6)
-SearchCorner.Parent = SearchBox
-
-local LeftMenu = Instance.new("ScrollingFrame")
-LeftMenu.Name = "LeftMenu"
-LeftMenu.Parent = MainFrame
+local LeftMenu = Instance.new("ScrollingFrame", MainFrame)
 LeftMenu.Active = true
 LeftMenu.BackgroundTransparency = 1
 LeftMenu.Position = UDim2.new(0, 12, 0, 55)
 LeftMenu.Size = UDim2.new(0, 155, 0, 280)
 LeftMenu.CanvasSize = UDim2.new(0, 0, 0, 0)
 LeftMenu.ScrollBarThickness = 2
-
-local UIListLayout = Instance.new("UIListLayout")
-UIListLayout.Parent = LeftMenu
+local UIListLayout = Instance.new("UIListLayout", LeftMenu)
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 UIListLayout.Padding = UDim.new(0, 6)
 
 local function AddScriptButton(targetPage, scriptName, callback)
-    local btn = Instance.new("TextButton")
-    btn.Parent = targetPage
+    local btn = Instance.new("TextButton", targetPage)
     btn.BackgroundColor3 = Color3.fromRGB(28, 42, 53)
     btn.BackgroundTransparency = 0.2
     btn.Size = UDim2.new(1, -10, 0, 36)
@@ -504,10 +434,7 @@ local function AddScriptButton(targetPage, scriptName, callback)
     btn.TextColor3 = Color3.fromRGB(230, 245, 255)
     btn.TextSize = 13
     btn.TextXAlignment = Enum.TextXAlignment.Left
-    
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 6)
-    corner.Parent = btn
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
     
     btn.MouseButton1Click:Connect(function()
         TweenService:Create(btn, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(0, 220, 220), TextColor3 = Color3.fromRGB(15, 15, 20)}):Play()
@@ -515,7 +442,6 @@ local function AddScriptButton(targetPage, scriptName, callback)
         TweenService:Create(btn, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(28, 42, 53), TextColor3 = Color3.fromRGB(230, 245, 255)}):Play()
         pcall(callback)
     end)
-    
     targetPage.CanvasSize = UDim2.new(0, 0, 0, targetPage.UIListLayout.AbsoluteContentSize.Y + 10)
 end
 
@@ -524,21 +450,15 @@ SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
     for _, page in pairs(Pages) do
         for _, child in pairs(page:GetChildren()) do
             if child:IsA("TextButton") then
-                if text == "" or child.Text:lower():find(text) then
-                    child.Visible = true
-                else
-                    child.Visible = false
-                end
+                child.Visible = (text == "" or child.Text:lower():find(text))
             end
         end
     end
 end)
 
 local MenuButtons = {}
-
 local function CreateMenuButton(name, targetPage)
-    local btn = Instance.new("TextButton")
-    btn.Parent = LeftMenu
+    local btn = Instance.new("TextButton", LeftMenu)
     btn.BackgroundColor3 = Color3.fromRGB(28, 42, 53)
     btn.BackgroundTransparency = 0.3
     btn.Size = UDim2.new(1, -5, 0, 36)
@@ -547,260 +467,37 @@ local function CreateMenuButton(name, targetPage)
     btn.TextColor3 = Color3.fromRGB(180, 200, 220)
     btn.TextSize = 13
     btn.TextXAlignment = Enum.TextXAlignment.Left
-    
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 6)
-    corner.Parent = btn
-    
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
     table.insert(MenuButtons, {Button = btn, Page = targetPage})
     
     btn.MouseButton1Click:Connect(function()
-        for _, p in pairs(Pages) do
-            p.Visible = false
-        end
+        for _, p in pairs(Pages) do p.Visible = false end
         targetPage.Visible = true
-        
         for _, item in ipairs(MenuButtons) do
-            TweenService:Create(item.Button, TweenInfo.new(0.2, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
-                BackgroundColor3 = Color3.fromRGB(28, 42, 53),
-                TextColor3 = Color3.fromRGB(180, 200, 220),
-                Size = UDim2.new(1, -5, 0, 36)
-            }):Play()
+            TweenService:Create(item.Button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(28, 42, 53), TextColor3 = Color3.fromRGB(180, 200, 220), Size = UDim2.new(1, -5, 0, 36)}):Play()
         end
-        
-        TweenService:Create(btn, TweenInfo.new(0.15, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
-            BackgroundColor3 = Color3.fromRGB(0, 220, 220),
-            TextColor3 = Color3.fromRGB(15, 15, 20),
-            Size = UDim2.new(1, -9, 0, 34)
-        }):Play()
-        
+        TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(0, 220, 220), TextColor3 = Color3.fromRGB(15, 15, 20), Size = UDim2.new(1, -9, 0, 34)}):Play()
         task.wait(0.15)
-        TweenService:Create(btn, TweenInfo.new(0.15, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {
-            Size = UDim2.new(1, -5, 0, 36)
-        }):Play()
+        TweenService:Create(btn, TweenInfo.new(0.15), {Size = UDim2.new(1, -5, 0, 36)}):Play()
     end)
 end
 
 CreateMenuButton("Blox Fruit", bfPage)
 CreateMenuButton("Steal An Egg", saePage)
 
--- ==================== DANH SÁCH CŨ (GIỮ NGUYÊN) ====================
-AddScriptButton(saePage, "Night Hub V2", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/StealAnEggs.luau"))()
+-- ==================== DANH SÁCH SCRIPT ====================
+AddScriptButton(saePage, "Speed Hub X", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
 end)
 
-AddScriptButton(saePage, "Night Hub V1", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/StealEggOnly.luau"))()
+AddScriptButton(saePage, "Night Hub V2", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/StealAnEggs.luau"))()
 end)
 
 AddScriptButton(saePage, "Sena", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/senarblx/sena/refs/heads/main/senav3go'))()
 end)
 
-AddScriptButton(saePage, "LennonV2", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/lennonxscripts/lennonhubv2/main/stealaneggv2"))()
-end)
-
-AddScriptButton(saePage, "RealKid", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/realkidhub/realkid/refs/heads/main/main.lua"))()
-end)
-
-AddScriptButton(saePage, "Vxeze", function()
-    loadstring(game:HttpGet("https://gist.githubusercontent.com/angeryy-tvy/6a9ce750ddf5860230196ac468868fdb/raw/Steal-An-Egg-Vxeze"))()
-end)
-
-AddScriptButton(saePage, "VoidShell", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/VoidShell-null/VoidShell-Hub/refs/heads/main/Scripts/StealAnEgg.luau"))()
-end)
-
-AddScriptButton(saePage, "NevaHub", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/VEZ2/NEVAHUB/main/2"))()
-end)
-
-AddScriptButton(saePage, "LennonV1", function()
-    loadstring(game:HttpGet("https://api.jnkie.com/api/v1/luascripts/public/bf52181bce5c28e6ecd16eebfa1a88ddaf646c7acb10015fbaa7b30dc7bad0a8/download"))()
-end)
-
-AddScriptButton(saePage, "Clover", function()
-    loadstring(game:HttpGet("https://cloverhub.app/clover.lua"))()
-end)
-
--- ==================== CÁC SCRIPT MỚI BỔ SUNG TỪ WEB ====================
-AddScriptButton(saePage, "Ouroboros", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/joustingmatch/Ouroboros/main/loader.lua"))()
-end)
-
-AddScriptButton(saePage, "ZeroIn Hub", function()
-    loadstring(game:HttpGet("https://zeroinhub.com/api/script"))()
-end)
-
-AddScriptButton(saePage, "Foxname Hub", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/caomod2077/Script/refs/heads/main/Fn-stealanegg.lua"))()
-end)
-
-AddScriptButton(saePage, "Oxide Hub", function()
-    loadstring(game:HttpGet("https://pastefy.app/alzaPmW9/raw"))()
-end)
-
-AddScriptButton(saePage, "Valinc Hub", function()
-    loadstring(game:HttpGet("https://api.valincsyndicate.com/v1/releases/5502cba03703f4a3628d522d396b80d8.lua"))()
-end)
-
-AddScriptButton(saePage, "TeamUB Hub", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/TeamUBHub/UBLoader/refs/heads/main/Loader.lua"))()
-end)
-
-AddScriptButton(saePage, "Zero Point", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/JaxRol/ZeroPoint/refs/heads/main/KeySystem"))()
-end)
-
-AddScriptButton(saePage, "Blyxo Hub", function()
-    loadstring(game:HttpGet("https://flowauth.net/v1/loaders/69d3463240384f3a73fbe32c178093a2.lua"))()
-end)
-
-AddScriptButton(saePage, "BK Hub", function()
-    loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/9ee4edde227ac85f50872bf9e4226508.lua"))()
-end)
-
-AddScriptButton(saePage, "BigFroot Hub", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/hanniii1/Loader/refs/heads/main/BFLoader.lua"))()
-end)
-
-AddScriptButton(saePage, "Speed Hub X", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
-end)
-
-AddScriptButton(saePage, "Nasi Rendang", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/JualNasiRendang/loader/refs/heads/main/main.lua"))()
-end)
-
-AddScriptButton(saePage, "Lumin Hub", function()
-    loadstring(game:HttpGet("http://luminon.top/loader.lua"))()
-end)
-
-AddScriptButton(saePage, "Airflow Hub", function()
-    loadstring(game:HttpGet("https://airflowscript.com/loader"))()
-end)
-
-AddScriptButton(saePage, "Yuri Hub", function()
-    _G.autoExec = false
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/iLove-yuri/leeeeesbian/refs/heads/main/homumado.lua"))()
-end)
-
-AddScriptButton(saePage, "Saiops Hub", function()
-    loadstring(game:HttpGet("https://api.saiops.cc/scripts/Steal-An-Egg-Script.lua"))()
-end)
-
-AddScriptButton(saePage, "Vantage Hub", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/MisterNovitski/Vantage/refs/heads/main/mm2.txt", true))()
-end)
-
-AddScriptButton(saePage, "Nova Hub", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/NovaHubRBLX/NovaHub/refs/heads/main/novahub.lua"))()
-end)
-
-AddScriptButton(saePage, "Ajjans Hub", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/virtuososvisualedits-prog/Ww/refs/heads/main/final-obfuscated.lua"))()
-end)
-
-AddScriptButton(saePage, "Nemesis Hub", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/x2zu/loader/main/freeloader.lua", true))()
-end)
-
-AddScriptButton(saePage, "Solix Hub", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/bao8jl/solixhub/main/loader"))()
-end)
-
-AddScriptButton(saePage, "Hoshi Hub", function()
-    loadstring(game:HttpGet("https://hoshihub.site/loader.lua"))()
-end)
-
-AddScriptButton(saePage, "Axon Hub", function()
-    loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/97c3f6db55a2cf72141537a85458e5a7.lua"))()
-end)
-
-AddScriptButton(saePage, "Flow Hub", function()
-    loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/5946add9ab91f1e04cb005346a8b1968.lua"))()
-end)
-
-AddScriptButton(saePage, "Rift Hub", function()
-    loadstring(game:HttpGet("https://rifton.top/loader.lua"))()
-end)
-
-AddScriptButton(saePage, "Kexxe Hub", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/premiumbuddy/kex/refs/heads/main/kexxxx"))()
-end)
-
-AddScriptButton(saePage, "Snowy Hub", function()
-    loadstring(game:HttpGet("https://flowauth.net/v1/ui/a87f00d9adf63658655fcd02ab86a4ef.lua"))()
-end)
-
-AddScriptButton(saePage, "OMG Hub", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Omgshit/Scripts/main/MainLoader.lua"))()
-end)
-
-AddScriptButton(saePage, "Asvra Hub", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/asvraRoblox/stealegg/refs/heads/main/main"))()
-end)
-
-AddScriptButton(saePage, "Zero Hub", function()
-    loadstring(game:HttpGet("https://www.zeroimpact.online/raw/loader"))()
-end)
-
-AddScriptButton(saePage, "Miranda Hub", function()
-    loadstring(game:HttpGet("https://api.jnkie.com/api/v1/luascripts/public/f56794e06dcfb4adad5dc739dff503f38ca8f7cc94e045eafe823a3c5f09c4cc/download"))()
-end)
-
-AddScriptButton(saePage, "Probest Hub", function()
-    loadstring(game:HttpGet("https://api.jnkie.com/api/v1/luascripts/public/0199b576f5c2d5a3415910f9f4e1de0a566b4d1da5b1cfa5d2f71ade9bdcaa24/download"))()
-end)
-
-AddScriptButton(saePage, "GS Hub", function()
-    loadstring(game:HttpGet("https://gist.githubusercontent.com/spiritualgaming1123-beep/46ef55c5f8284e076aafc5ebd12233f4/raw/5b24749c3931c1838a76e64c9af508dcdd03700a/gistfile1.lua"))()
-end)
-
-AddScriptButton(saePage, "Sportsclub Hub", function()
-    loadstring(game:HttpGet("https://loader.sportsclub.fun/loader.luau"))()
-end)
-
-AddScriptButton(saePage, "Scriptverse Hub", function()
-    loadstring(game:HttpGet("https://scriptversekey.xyz/s/steal-an-egg"))()
-end)
-
-AddScriptButton(saePage, "ZK Hub", function()
-    _G.Config = {ApiKey = "ZKCOMMUNITYcfdb742a751aad57d79b375ea6c7cbc7"}
-    loadstring(game:HttpGet("https://zkcommunity.cloud/loader.lua"))()
-end)
-
-AddScriptButton(saePage, "Axonic Hub", function()
-    _G.loadstring(game:HttpGet("https://raw.githubusercontent.com/Kenniel123/Steal-A-Egg/refs/heads/main/Steal%20A%20Egg"))()
-end)
-
-AddScriptButton(saePage, "Pig Hub", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/mopsscript7-gif/steal-an-egg/refs/heads/main/script.lua"))()
-end)
-
-AddScriptButton(saePage, "Neox Hub", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/hassanxzayn-lua/NEOXHUBMAIN/refs/heads/main/loader", true))()
-end)
-
-AddScriptButton(saePage, "Fyy Hub", function()
-    loadstring(game:HttpGet("https://fyycommunity.com/"))()
-end)
-
-AddScriptButton(saePage, "Sys Hub", function()
-    loadstring(game:HttpGet("https://syshub.fun/free"))()
-end)
-
-AddScriptButton(saePage, "Chiyo Hub", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/kaisenlmao/loader/refs/heads/main/chiyo.lua"))()
-end)
-
-AddScriptButton(saePage, "Tsuo Hub", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Tsuo7/TsuoHub/main/stealanegg"))()
-end)
-
--- ==================== DANH SÁCH SCRIPT BLOX FRUIT ====================
 AddScriptButton(bfPage, "RealKid", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/realkidhub/realkid/refs/heads/main/main.lua"))()
 end)
