@@ -1,8 +1,50 @@
--- [[ BRAKYO HUB - SIMPLE KEY SYSTEM ]]
+-- [[ BRAKYO HUB - ONE-TIME KEY SYSTEM (12 HOURS LOOP) ]]
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
+local HttpService = game:GetService("HttpService")
 local Player = Players.LocalPlayer
+
+local function getHWID()
+    local hwid = ""
+    if gethwid then
+        hwid = gethwid()
+    elseif syn and syn.get_hwid then
+        hwid = syn.get_hwid()
+    elseif RbxAnalyticsService then
+        pcall(function()
+            hwid = RbxAnalyticsService:GetClientId()
+        end)
+    end
+    if hwid == "" then
+        hwid = tostring(Player.UserId)
+    end
+    return hwid
+end
+
+local playerHWID = getHWID()
+local saveFileName = "BrakyoHub_KeyDatabase.json"
+
+-- Quản lý dữ liệu key đã sử dụng và thời gian hiệu lực
+local function loadKeyData()
+    if writefile and readfile and isfile and isfile(saveFileName) then
+        local success, data = pcall(function()
+            return HttpService:JSONDecode(readfile(saveFileName))
+        end)
+        if success and type(data) == "table" then
+            return data
+        end
+    end
+    return {usedKeys = {}, expiresAt = 0}
+end
+
+local function saveKeyData(data)
+    if writefile then
+        pcall(function()
+            writefile(saveFileName, HttpService:JSONEncode(data))
+        end)
+    end
+end
 
 if CoreGui:FindFirstChild("BrakyoHub") then
     CoreGui.BrakyoHub:Destroy()
@@ -13,16 +55,20 @@ BrakyoHub.Name = "BrakyoHub"
 BrakyoHub.Parent = CoreGui
 BrakyoHub.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- Danh sách Key vĩnh viễn của bạn
+-- Danh sách 30 Key mới dạng "BK - ......"
 local ValidKeys = {
-    "O5J6sql",
-    "6lhq071K",
-    "Y61Vql9d",
-    "Kr4i8P2k",
-    "Ob927pa",
-    "BK-7vQ9xL2mR8pT4zN",
-    "BK-X5nK8wP3qY7dH6s"
+    "BK - 9xK2mL7p", "BK - 3vQ5wN1r", "BK - 8hY4jK6f", "BK - 2zX8mL3p", "BK - 5tR1vB9k",
+    "BK - 7nK6xH4m", "BK - 4pL2qW8s", "BK - 6jM9vN1z", "BK - 1kP3zX5q", "BK - 8bN7mC2v",
+    "BK - 4hF9gD6s", "BK - 2tY5uI8o", "BK - 9rE3wQ1a", "BK - 6zX4cV7b", "BK - 3nJ8mK2l",
+    "BK - 7pL1oI9u", "BK - 5fD2sA4g", "BK - 1vC6xZ8n", "BK - 8qW9eR3t", "BK - 4uI5oP7y",
+    "BK - 2aS3dF6g", "BK - 9mN8bV1c", "BK - 6kL7pJ4h", "BK - 3xZ2xC5v", "BK - 7tY1uI9o",
+    "BK - 5rE4wQ8a", "BK - 1hG2jK6l", "BK - 8pL3oI7u", "BK - 4fD9sA2g", "BK - 6vC1xZ5n"
 }
+
+-- ==================== KIỂM TRA TRẠNG THÁI 12 TIẾNG ====================
+local keyData = loadKeyData()
+local currentTime = os.time()
+local isAlreadyAuthorized = (currentTime < keyData.expiresAt)
 
 -- ==================== KEY SYSTEM FRAME ====================
 local KeySystemFrame = Instance.new("Frame", BrakyoHub)
@@ -35,6 +81,7 @@ KeySystemFrame.Size = UDim2.new(0, 400, 0, 270)
 KeySystemFrame.Draggable = true
 KeySystemFrame.Active = true
 KeySystemFrame.ClipsDescendants = true
+KeySystemFrame.Visible = not isAlreadyAuthorized
 
 Instance.new("UICorner", KeySystemFrame).CornerRadius = UDim.new(0, 10)
 local KeyStroke = Instance.new("UIStroke", KeySystemFrame)
@@ -57,7 +104,7 @@ KeyBox.BorderSizePixel = 0
 KeyBox.Position = UDim2.new(0.5, -170, 0, 50)
 KeyBox.Size = UDim2.new(0, 340, 0, 36)
 KeyBox.Font = Enum.Font.Gotham
-KeyBox.PlaceholderText = "Nhập Key của bạn..."
+KeyBox.PlaceholderText = "Nhập Key mới của bạn..."
 KeyBox.Text = ""
 KeyBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 KeyBox.PlaceholderColor3 = Color3.fromRGB(150, 170, 190)
@@ -84,7 +131,6 @@ StatusLabel.Text = ""
 StatusLabel.TextColor3 = Color3.fromRGB(180, 200, 220)
 StatusLabel.TextSize = 12
 
--- Nút Get Key
 local Link4mBtn = Instance.new("TextButton", KeySystemFrame)
 Link4mBtn.BackgroundColor3 = Color3.fromRGB(45, 60, 75)
 Link4mBtn.Position = UDim2.new(0.5, -170, 0, 180)
@@ -188,7 +234,7 @@ MainFrame.Size = UDim2.new(0, 550, 0, 350)
 MainFrame.Draggable = true
 MainFrame.Active = true
 MainFrame.ClipsDescendants = true
-MainFrame.Visible = false
+MainFrame.Visible = isAlreadyAuthorized
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
 local MainStroke = Instance.new("UIStroke", MainFrame)
 MainStroke.Color = Color3.fromRGB(0, 220, 220)
@@ -265,11 +311,11 @@ end
 local bfPage = CreateTab("Blox Fruit")
 local saePage = CreateTab("Steal An Egg")
 
--- Xử lý nút xác nhận Key (Nhập đúng là qua bảng Disclaimer)
 SubmitBtn.MouseButton1Click:Connect(function()
     local enteredKey = KeyBox.Text:gsub("^%s+", ""):gsub("%s+$", "")
     local isValid = false
     
+    -- Kiểm tra xem key có tồn tại trong danh sách hệ thống không
     for _, k in ipairs(ValidKeys) do
         if enteredKey == k then
             isValid = true
@@ -278,11 +324,34 @@ SubmitBtn.MouseButton1Click:Connect(function()
     end
     
     if isValid then
-        StatusLabel.TextColor3 = Color3.fromRGB(0, 220, 220)
-        StatusLabel.Text = "✅ Thành công!"
-        task.wait(0.5)
-        KeySystemFrame:Destroy()
-        DisclaimerFrame.Visible = true
+        -- Kiểm tra xem key này đã từng được dùng chưa
+        local isAlreadyUsed = false
+        if keyData.usedKeys then
+            for _, usedKey in ipairs(keyData.usedKeys) do
+                if usedKey == enteredKey then
+                    isAlreadyUsed = true
+                    break
+                end
+            end
+        else
+            keyData.usedKeys = {}
+        end
+        
+        if isAlreadyUsed then
+            StatusLabel.TextColor3 = Color3.fromRGB(255, 90, 90)
+            StatusLabel.Text = "❌ Key này đã được sử dụng rồi, hãy dùng key mới!"
+        else
+            -- Đánh dấu key này đã hỏng/dùng rồi, đồng thời cấp quyền 12 tiếng mới
+            table.insert(keyData.usedKeys, enteredKey)
+            keyData.expiresAt = os.time() + (12 * 3600)
+            saveKeyData(keyData)
+
+            StatusLabel.TextColor3 = Color3.fromRGB(0, 220, 220)
+            StatusLabel.Text = "✅ Thành công! Mở Hub trong 12 tiếng."
+            task.wait(0.5)
+            KeySystemFrame:Destroy()
+            DisclaimerFrame.Visible = true
+        end
     else
         StatusLabel.TextColor3 = Color3.fromRGB(255, 90, 90)
         StatusLabel.Text = "❌ Key không chính xác!"
@@ -440,7 +509,7 @@ end
 CreateMenuButton("Blox Fruit", bfPage)
 CreateMenuButton("Steal An Egg", saePage)
 
--- ==================== CÁC SCRIPT (STEAL AN EGG) ====================
+-- ==================== CÁC SCRIPT (STEAL AN EGG & BLOX FRUIT) ====================
 AddScriptButton(saePage, "Realkid", function()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/realkidhub/realkid/refs/heads/main/main.lua"))()
 end)
