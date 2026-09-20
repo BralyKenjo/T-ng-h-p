@@ -1,0 +1,762 @@
+-- [[ BRAKYO HUB - MONOLITHIC KEY SYSTEM (12h / per-device) ]]
+local CoreGui = game:GetService("CoreGui")
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local HttpService = game:GetService("HttpService")
+local Player = Players.LocalPlayer
+
+local PERMANENT_KEY = "KenjoBraly"
+local ACCESS_DURATION = 12 * 60 * 60
+local SAVE_FILE = "BrakyoHub_KeyData.json"
+
+local function normalizeKey(value)
+    return tostring(value or ""):gsub("^%s+", ""):gsub("%s+$", "")
+end
+
+local function getHWID()
+    local hwid = ""
+
+    if gethwid then
+        hwid = gethwid()
+    elseif syn and syn.get_hwid then
+        hwid = syn.get_hwid()
+    elseif RbxAnalyticsService then
+        pcall(function()
+            hwid = RbxAnalyticsService:GetClientId()
+        end)
+    end
+
+    if hwid == "" then
+        hwid = tostring(Player.UserId)
+    end
+
+    return hwid
+end
+
+local function loadKeyState()
+    local defaultState = {
+        hwid = "",
+        expiresAt = 0,
+        key = ""
+    }
+
+    if writefile and readfile and isfile and isfile(SAVE_FILE) then
+        local ok, data = pcall(function()
+            return HttpService:JSONDecode(readfile(SAVE_FILE))
+        end)
+
+        if ok and type(data) == "table" then
+            defaultState = data
+        end
+    end
+
+    return defaultState
+end
+
+local function saveKeyState(state)
+    if writefile then
+        pcall(function()
+            writefile(SAVE_FILE, HttpService:JSONEncode(state))
+        end)
+    end
+end
+
+local function isAccessValid()
+    local currentHWID = getHWID()
+    local state = loadKeyState()
+
+    if type(state) == "table" and state.hwid == currentHWID then
+        local expiresAt = tonumber(state.expiresAt) or 0
+        return os.time() < expiresAt, expiresAt
+    end
+
+    return false, 0
+end
+
+local function setKeyState(key, expiresAt)
+    local currentHWID = getHWID()
+    local state = {
+        hwid = currentHWID,
+        key = key,
+        expiresAt = expiresAt
+    }
+    saveKeyState(state)
+end
+
+if CoreGui:FindFirstChild("BrakyoHub") then
+    CoreGui.BrakyoHub:Destroy()
+end
+
+local BrakyoHub = Instance.new("ScreenGui")
+BrakyoHub.Name = "BrakyoHub"
+BrakyoHub.Parent = CoreGui
+BrakyoHub.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+-- ==================== CHECK CURRENT ACCESS ====================
+local KeyAuthorized, KeyExpiresAt = isAccessValid()
+local KeySystemVisible = not KeyAuthorized
+
+-- ==================== KEY SYSTEM UI ====================
+local KeySystemFrame = Instance.new("Frame", BrakyoHub)
+KeySystemFrame.Name = "KeySystemFrame"
+KeySystemFrame.BackgroundColor3 = Color3.fromRGB(18, 26, 32)
+KeySystemFrame.BackgroundTransparency = 0.15
+KeySystemFrame.BorderSizePixel = 0
+KeySystemFrame.Position = UDim2.new(0.5, -200, 0.5, -135)
+KeySystemFrame.Size = UDim2.new(0, 400, 0, 270)
+KeySystemFrame.Draggable = true
+KeySystemFrame.Active = true
+KeySystemFrame.ClipsDescendants = true
+KeySystemFrame.Visible = KeySystemVisible
+
+Instance.new("UICorner", KeySystemFrame).CornerRadius = UDim.new(0, 10)
+local KeyStroke = Instance.new("UIStroke", KeySystemFrame)
+KeyStroke.Color = Color3.fromRGB(0, 220, 220)
+KeyStroke.Thickness = 1.5
+
+local KeyTitle = Instance.new("TextLabel", KeySystemFrame)
+KeyTitle.BackgroundTransparency = 1
+KeyTitle.Position = UDim2.new(0, 0, 0, 12)
+KeyTitle.Size = UDim2.new(1, 0, 0, 30)
+KeyTitle.Font = Enum.Font.GothamBold
+KeyTitle.Text = "⚡ BRAKYO HUB - KEY SYSTEM"
+KeyTitle.TextColor3 = Color3.fromRGB(0, 220, 220)
+KeyTitle.TextSize = 16
+
+local KeyBox = Instance.new("TextBox", KeySystemFrame)
+KeyBox.BackgroundColor3 = Color3.fromRGB(28, 42, 53)
+KeyBox.BackgroundTransparency = 0.2
+KeyBox.BorderSizePixel = 0
+KeyBox.Position = UDim2.new(0.5, -170, 0, 50)
+KeyBox.Size = UDim2.new(0, 340, 0, 36)
+KeyBox.Font = Enum.Font.Gotham
+KeyBox.PlaceholderText = "Nhập Key của bạn..."
+KeyBox.Text = ""
+KeyBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+KeyBox.PlaceholderColor3 = Color3.fromRGB(150, 170, 190)
+KeyBox.TextSize = 13
+KeyBox.ClearTextOnFocus = false
+Instance.new("UICorner", KeyBox).CornerRadius = UDim.new(0, 6)
+
+local SubmitBtn = Instance.new("TextButton", KeySystemFrame)
+SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 220, 220)
+SubmitBtn.Position = UDim2.new(0.5, -170, 0, 94)
+SubmitBtn.Size = UDim2.new(0, 340, 0, 36)
+SubmitBtn.Font = Enum.Font.GothamBold
+SubmitBtn.Text = "XÁC NHẬN KEY"
+SubmitBtn.TextColor3 = Color3.fromRGB(15, 15, 20)
+SubmitBtn.TextSize = 13
+Instance.new("UICorner", SubmitBtn).CornerRadius = UDim.new(0, 6)
+
+local StatusLabel = Instance.new("TextLabel", KeySystemFrame)
+StatusLabel.BackgroundTransparency = 1
+StatusLabel.Position = UDim2.new(0, 0, 0, 138)
+StatusLabel.Size = UDim2.new(1, 0, 0, 30)
+StatusLabel.Font = Enum.Font.GothamMedium
+StatusLabel.Text = ""
+StatusLabel.TextColor3 = Color3.fromRGB(180, 200, 220)
+StatusLabel.TextSize = 12
+
+local Link4mBtn = Instance.new("TextButton", KeySystemFrame)
+Link4mBtn.BackgroundColor3 = Color3.fromRGB(45, 60, 75)
+Link4mBtn.Position = UDim2.new(0.5, -170, 0, 180)
+Link4mBtn.Size = UDim2.new(0, 162, 0, 34)
+Link4mBtn.Font = Enum.Font.GothamBold
+Link4mBtn.Text = "GET KEY: LINK 4M"
+Link4mBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+Link4mBtn.TextSize = 12
+Instance.new("UICorner", Link4mBtn).CornerRadius = UDim.new(0, 6)
+
+Link4mBtn.MouseButton1Click:Connect(function()
+    if setclipboard then
+        setclipboard("https://link4m.net/DoGHs0MS")
+        StatusLabel.TextColor3 = Color3.fromRGB(0, 220, 220)
+        StatusLabel.Text = "✅ Đã sao chép Link 4m vào clipboard!"
+    end
+end)
+
+local Link4SubBtn = Instance.new("TextButton", KeySystemFrame)
+Link4SubBtn.BackgroundColor3 = Color3.fromRGB(45, 60, 75)
+Link4SubBtn.Position = UDim2.new(0.5, 8, 0, 180)
+Link4SubBtn.Size = UDim2.new(0, 162, 0, 34)
+Link4SubBtn.Font = Enum.Font.GothamBold
+Link4SubBtn.Text = "GET KEY: LINK 4 SUB"
+Link4SubBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+Link4SubBtn.TextSize = 12
+Instance.new("UICorner", Link4SubBtn).CornerRadius = UDim.new(0, 6)
+
+Link4SubBtn.MouseButton1Click:Connect(function()
+    if setclipboard then
+        setclipboard("https://link4sub.com/DLRKEw8ev5")
+        StatusLabel.TextColor3 = Color3.fromRGB(0, 220, 220)
+        StatusLabel.Text = "✅ Đã sao chép Link 4 sub vào clipboard!"
+    end
+end)
+
+-- ==================== DISCLAIMER UI ====================
+local DisclaimerFrame = Instance.new("Frame", BrakyoHub)
+DisclaimerFrame.Name = "DisclaimerFrame"
+DisclaimerFrame.BackgroundColor3 = Color3.fromRGB(18, 26, 32)
+DisclaimerFrame.BackgroundTransparency = 0.1
+DisclaimerFrame.BorderSizePixel = 0
+DisclaimerFrame.Position = UDim2.new(0.5, -200, 0.5, -110)
+DisclaimerFrame.Size = UDim2.new(0, 400, 0, 220)
+DisclaimerFrame.Visible = false
+DisclaimerFrame.ZIndex = 20
+Instance.new("UICorner", DisclaimerFrame).CornerRadius = UDim.new(0, 10)
+local DiscStroke = Instance.new("UIStroke", DisclaimerFrame)
+DiscStroke.Color = Color3.fromRGB(0, 220, 220)
+DiscStroke.Thickness = 1.5
+
+local DiscText = Instance.new("TextLabel", DisclaimerFrame)
+DiscText.BackgroundTransparency = 1
+DiscText.Position = UDim2.new(0, 20, 0, 20)
+DiscText.Size = UDim2.new(1, -40, 0, 110)
+DiscText.Font = Enum.Font.GothamMedium
+DiscText.Text = "⚠️ Tất cả script đều lấy trên mạng, có key thì ae get và không chịu trách nhiệm"
+DiscText.TextColor3 = Color3.fromRGB(255, 255, 255)
+DiscText.TextSize = 14
+DiscText.TextWrapped = true
+
+local AcceptDiscBtn = Instance.new("TextButton", DisclaimerFrame)
+AcceptDiscBtn.BackgroundColor3 = Color3.fromRGB(0, 220, 220)
+AcceptDiscBtn.Position = UDim2.new(0.5, -75, 0, 145)
+AcceptDiscBtn.Size = UDim2.new(0, 150, 0, 38)
+AcceptDiscBtn.Font = Enum.Font.GothamBold
+AcceptDiscBtn.Text = "XÁC NHẬN"
+AcceptDiscBtn.TextColor3 = Color3.fromRGB(15, 15, 20)
+AcceptDiscBtn.TextSize = 13
+Instance.new("UICorner", AcceptDiscBtn).CornerRadius = UDim.new(0, 6)
+
+-- ==================== MIN BUTTON ====================
+local MinButton = Instance.new("TextButton", BrakyoHub)
+MinButton.Name = "MinButton"
+MinButton.BackgroundColor3 = Color3.fromRGB(18, 26, 32)
+MinButton.BackgroundTransparency = 0.2
+MinButton.BorderSizePixel = 0
+MinButton.Position = UDim2.new(0.05, 0, 0.1, 0)
+MinButton.Size = UDim2.new(0, 48, 0, 48)
+MinButton.Font = Enum.Font.FredokaOne
+MinButton.Text = "BK"
+MinButton.TextColor3 = Color3.fromRGB(0, 220, 220)
+MinButton.TextSize = 18
+MinButton.Draggable = true
+MinButton.Visible = false
+MinButton.Active = true
+Instance.new("UICorner", MinButton).CornerRadius = UDim.new(1, 0)
+local MinStroke = Instance.new("UIStroke", MinButton)
+MinStroke.Color = Color3.fromRGB(0, 220, 220)
+MinStroke.Transparency = 0.2
+MinStroke.Thickness = 2
+
+-- ==================== MAIN HUB UI ====================
+local MainFrame = Instance.new("Frame", BrakyoHub)
+MainFrame.Name = "MainFrame"
+MainFrame.BackgroundColor3 = Color3.fromRGB(18, 26, 32)
+MainFrame.BackgroundTransparency = 0.15
+MainFrame.BorderSizePixel = 0
+MainFrame.Position = UDim2.new(0.5, -275, 0.5, -175)
+MainFrame.Size = UDim2.new(0, 550, 0, 350)
+MainFrame.Draggable = true
+MainFrame.Active = true
+MainFrame.ClipsDescendants = true
+MainFrame.Visible = KeyAuthorized
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
+local MainStroke = Instance.new("UIStroke", MainFrame)
+MainStroke.Color = Color3.fromRGB(0, 220, 220)
+MainStroke.Thickness = 1.5
+
+-- ==================== CONFIRM CLOSE FRAME ====================
+local ConfirmCloseFrame = Instance.new("Frame", MainFrame)
+ConfirmCloseFrame.BackgroundColor3 = Color3.fromRGB(14, 20, 25)
+ConfirmCloseFrame.BackgroundTransparency = 0.1
+ConfirmCloseFrame.Size = UDim2.new(1, 0, 1, 0)
+ConfirmCloseFrame.Visible = false
+ConfirmCloseFrame.ZIndex = 30
+
+local ConfirmText = Instance.new("TextLabel", ConfirmCloseFrame)
+ConfirmText.BackgroundTransparency = 1
+ConfirmText.Size = UDim2.new(1, 0, 0, 50)
+ConfirmText.Position = UDim2.new(0, 0, 0.35, 0)
+ConfirmText.Font = Enum.Font.GothamBold
+ConfirmText.Text = "Bạn chắc chắn muốn đóng chứ?"
+ConfirmText.TextColor3 = Color3.fromRGB(255, 255, 255)
+ConfirmText.TextSize = 16
+ConfirmText.ZIndex = 31
+
+local YesBtn = Instance.new("TextButton", ConfirmCloseFrame)
+YesBtn.BackgroundColor3 = Color3.fromRGB(220, 60, 60)
+YesBtn.Position = UDim2.new(0.5, -110, 0.55, 0)
+YesBtn.Size = UDim2.new(0, 100, 0, 35)
+YesBtn.Font = Enum.Font.GothamBold
+YesBtn.Text = "Có"
+YesBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+YesBtn.TextSize = 14
+YesBtn.ZIndex = 31
+Instance.new("UICorner", YesBtn).CornerRadius = UDim.new(0, 6)
+
+local NoBtn = Instance.new("TextButton", ConfirmCloseFrame)
+NoBtn.BackgroundColor3 = Color3.fromRGB(45, 60, 75)
+NoBtn.Position = UDim2.new(0.5, 10, 0.55, 0)
+NoBtn.Size = UDim2.new(0, 100, 0, 35)
+NoBtn.Font = Enum.Font.GothamBold
+NoBtn.Text = "Không"
+NoBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+NoBtn.TextSize = 14
+NoBtn.ZIndex = 31
+Instance.new("UICorner", NoBtn).CornerRadius = UDim.new(0, 6)
+
+-- ==================== TABS & CONTAINERS ====================
+local RightContainer = Instance.new("Frame", MainFrame)
+RightContainer.BackgroundColor3 = Color3.fromRGB(28, 42, 53)
+RightContainer.BackgroundTransparency = 0.2
+RightContainer.BorderSizePixel = 0
+RightContainer.Position = UDim2.new(0, 180, 0, 55)
+RightContainer.Size = UDim2.new(0, 358, 0, 280)
+Instance.new("UICorner", RightContainer).CornerRadius = UDim.new(0, 6)
+
+local Pages = {}
+
+local function CreateTab(name)
+    local Page = Instance.new("ScrollingFrame", RightContainer)
+    Page.Name = name .. "Page"
+    Page.Active = true
+    Page.BackgroundTransparency = 1
+    Page.Size = UDim2.new(1, 0, 1, 0)
+    Page.CanvasSize = UDim2.new(0, 0, 0, 0)
+    Page.ScrollBarThickness = 4
+    Page.Visible = false
+
+    local Layout = Instance.new("UIListLayout", Page)
+    Layout.SortOrder = Enum.SortOrder.LayoutOrder
+    Layout.Padding = UDim.new(0, 6)
+
+    Pages[name] = Page
+    return Page
+end
+
+local bfPage = CreateTab("Blox Fruit")
+local saePage = CreateTab("Steal An Egg")
+bfPage.Visible = true
+
+local TitleLabel = Instance.new("TextLabel", MainFrame)
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Position = UDim2.new(0, 18, 0, 12)
+TitleLabel.Size = UDim2.new(0, 150, 0, 30)
+TitleLabel.Font = Enum.Font.GothamBold
+TitleLabel.Text = "⚡ BRAKYO HUB"
+TitleLabel.TextColor3 = Color3.fromRGB(0, 220, 220)
+TitleLabel.TextSize = 15
+TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+local MinimizeBtn = Instance.new("TextButton", MainFrame)
+MinimizeBtn.BackgroundTransparency = 1
+MinimizeBtn.Position = UDim2.new(1, -65, 0, 12)
+MinimizeBtn.Size = UDim2.new(0, 25, 0, 25)
+MinimizeBtn.Font = Enum.Font.GothamBold
+MinimizeBtn.Text = "-"
+MinimizeBtn.TextColor3 = Color3.fromRGB(180, 200, 220)
+MinimizeBtn.TextSize = 18
+
+local CloseBtn = Instance.new("TextButton", MainFrame)
+CloseBtn.BackgroundTransparency = 1
+CloseBtn.Position = UDim2.new(1, -35, 0, 12)
+CloseBtn.Size = UDim2.new(0, 25, 0, 25)
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.Text = "X"
+CloseBtn.TextColor3 = Color3.fromRGB(255, 90, 90)
+CloseBtn.TextSize = 14
+
+CloseBtn.MouseButton1Click:Connect(function()
+    ConfirmCloseFrame.Visible = true
+end)
+
+YesBtn.MouseButton1Click:Connect(function()
+    local tween = TweenService:Create(MainFrame, TweenInfo.new(0.2, Enum.EasingStyle.Cubic, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0)})
+    tween:Play()
+    tween.Completed:Wait()
+    BrakyoHub:Destroy()
+end)
+
+NoBtn.MouseButton1Click:Connect(function()
+    ConfirmCloseFrame.Visible = false
+end)
+
+local function animatePopup(show)
+    if show then
+        MinButton.Visible = false
+        MainFrame.Visible = true
+        MainFrame.Size = UDim2.new(0, 0, 0, 0)
+        TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out), {Size = UDim2.new(0, 550, 0, 350)}):Play()
+    else
+        local tween = TweenService:Create(MainFrame, TweenInfo.new(0.25, Enum.EasingStyle.Cubic, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0)})
+        tween:Play()
+        tween.Completed:Wait()
+        MainFrame.Visible = false
+        MinButton.Visible = true
+    end
+end
+
+MinimizeBtn.MouseButton1Click:Connect(function() animatePopup(false) end)
+MinButton.MouseButton1Click:Connect(function() animatePopup(true) end)
+
+local SearchBox = Instance.new("TextBox", MainFrame)
+SearchBox.BackgroundColor3 = Color3.fromRGB(28, 42, 53)
+SearchBox.BackgroundTransparency = 0.2
+SearchBox.BorderSizePixel = 0
+SearchBox.Position = UDim2.new(0, 180, 0, 12)
+SearchBox.Size = UDim2.new(0, 285, 0, 28)
+SearchBox.Font = Enum.Font.Gotham
+SearchBox.PlaceholderText = "Tìm kiếm script..."
+SearchBox.Text = ""
+SearchBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+SearchBox.PlaceholderColor3 = Color3.fromRGB(150, 170, 190)
+SearchBox.TextSize = 13
+SearchBox.ClearTextOnFocus = false
+Instance.new("UICorner", SearchBox).CornerRadius = UDim.new(0, 6)
+
+local LeftMenu = Instance.new("ScrollingFrame", MainFrame)
+LeftMenu.Active = true
+LeftMenu.BackgroundTransparency = 1
+LeftMenu.Position = UDim2.new(0, 12, 0, 55)
+LeftMenu.Size = UDim2.new(0, 155, 0, 280)
+LeftMenu.CanvasSize = UDim2.new(0, 0, 0, 0)
+LeftMenu.ScrollBarThickness = 2
+local UIListLayout = Instance.new("UIListLayout", LeftMenu)
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0, 6)
+
+local function AddScriptButton(targetPage, scriptName, callback)
+    local btn = Instance.new("TextButton", targetPage)
+    btn.BackgroundColor3 = Color3.fromRGB(28, 42, 53)
+    btn.BackgroundTransparency = 0.2
+    btn.Size = UDim2.new(1, -10, 0, 36)
+    btn.Font = Enum.Font.GothamSemibold
+    btn.Text = "  " .. scriptName
+    btn.TextColor3 = Color3.fromRGB(230, 245, 255)
+    btn.TextSize = 13
+    btn.TextXAlignment = Enum.TextXAlignment.Left
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+
+    btn.MouseButton1Click:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(0, 220, 220), TextColor3 = Color3.fromRGB(15, 15, 20)}):Play()
+        task.wait(0.12)
+        TweenService:Create(btn, TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {BackgroundColor3 = Color3.fromRGB(28, 42, 53), TextColor3 = Color3.fromRGB(230, 245, 255)}):Play()
+        pcall(callback)
+    end)
+
+    targetPage.CanvasSize = UDim2.new(0, 0, 0, targetPage.UIListLayout.AbsoluteContentSize.Y + 20)
+end
+
+SearchBox:GetPropertyChangedSignal("Text"):Connect(function()
+    local text = SearchBox.Text:lower()
+    for _, page in pairs(Pages) do
+        for _, child in pairs(page:GetChildren()) do
+            if child:IsA("TextButton") then
+                child.Visible = (text == "" or child.Text:lower():find(text))
+            end
+        end
+        page.CanvasSize = UDim2.new(0, 0, 0, page.UIListLayout.AbsoluteContentSize.Y + 20)
+    end
+end)
+
+local MenuButtons = {}
+local function CreateMenuButton(name, targetPage)
+    local btn = Instance.new("TextButton", LeftMenu)
+    btn.BackgroundColor3 = Color3.fromRGB(28, 42, 53)
+    btn.BackgroundTransparency = 0.3
+    btn.Size = UDim2.new(1, -5, 0, 36)
+    btn.Font = Enum.Font.GothamMedium
+    btn.Text = "  " .. name
+    btn.TextColor3 = Color3.fromRGB(180, 200, 220)
+    btn.TextSize = 13
+    btn.TextXAlignment = Enum.TextXAlignment.Left
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+    table.insert(MenuButtons, {Button = btn, Page = targetPage})
+
+    btn.MouseButton1Click:Connect(function()
+        for _, p in pairs(Pages) do p.Visible = false end
+        targetPage.Visible = true
+        for _, item in ipairs(MenuButtons) do
+            TweenService:Create(item.Button, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(28, 42, 53), TextColor3 = Color3.fromRGB(180, 200, 220), Size = UDim2.new(1, -5, 0, 36)}):Play()
+        end
+        TweenService:Create(btn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(0, 220, 220), TextColor3 = Color3.fromRGB(15, 15, 20), Size = UDim2.new(1, -9, 0, 34)}):Play()
+        task.wait(0.15)
+        TweenService:Create(btn, TweenInfo.new(0.15), {Size = UDim2.new(1, -5, 0, 36)}):Play()
+    end)
+    LeftMenu.CanvasSize = UDim2.new(0, 0, 0, LeftMenu.UIListLayout.AbsoluteContentSize.Y + 20)
+end
+
+CreateMenuButton("Blox Fruit", bfPage)
+CreateMenuButton("Steal An Egg", saePage)
+
+-- ==================== KEY VALIDATION LOGIC ====================
+SubmitBtn.MouseButton1Click:Connect(function()
+    local inputKey = normalizeKey(KeyBox.Text)
+
+    if inputKey == PERMANENT_KEY then
+        local now = os.time()
+        local state = loadKeyState()
+        local currentHWID = getHWID()
+
+        if type(state) == "table" and state.hwid == currentHWID and tonumber(state.expiresAt) and os.time() < tonumber(state.expiresAt) then
+            StatusLabel.TextColor3 = Color3.fromRGB(0, 220, 220)
+            StatusLabel.Text = "✅ Key còn hiệu lực, bạn đã được cấp quyền."
+            task.wait(0.7)
+            KeySystemFrame.Visible = false
+            MainFrame.Visible = true
+            return
+        end
+
+        local newExpiresAt = now + ACCESS_DURATION
+        setKeyState(PERMANENT_KEY, newExpiresAt)
+
+        StatusLabel.TextColor3 = Color3.fromRGB(0, 220, 220)
+        StatusLabel.Text = "✅ Key hợp lệ. Quyền truy cập 12 giờ."
+        task.wait(0.7)
+        KeySystemFrame.Visible = false
+        MainFrame.Visible = true
+        return
+    end
+
+    StatusLabel.TextColor3 = Color3.fromRGB(255, 90, 90)
+    StatusLabel.Text = "❌ Key không chính xác!"
+end)
+
+-- Nếu đang được cấp quyền thì key UI ẩn
+if KeyAuthorized then
+    KeySystemFrame.Visible = false
+    MainFrame.Visible = true
+else
+    KeySystemFrame.Visible = true
+    MainFrame.Visible = false
+end
+
+-- ==================== AUTO-RESET AFTER 12 HOURS ====================
+task.spawn(function()
+    while true do
+        task.wait(15)
+        local valid, expiresAt = isAccessValid()
+        if valid then
+            if KeySystemFrame.Visible then
+                KeySystemFrame.Visible = false
+            end
+            if not MainFrame.Visible then
+                MainFrame.Visible = true
+            end
+        else
+            if not KeySystemFrame.Visible then
+                KeySystemFrame.Visible = true
+            end
+            if MainFrame.Visible then
+                MainFrame.Visible = false
+            end
+        end
+    end
+end)
+
+AcceptDiscBtn.MouseButton1Click:Connect(function()
+    DisclaimerFrame.Visible = false
+    if isAccessValid() then
+        MainFrame.Visible = true
+    else
+        KeySystemFrame.Visible = true
+    end
+end)
+
+-- ==================== CÁC SCRIPT ====================
+AddScriptButton(saePage, "Realkid", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/realkidhub/realkid/refs/heads/main/main.lua"))()
+end)
+
+AddScriptButton(saePage, "Speed Hub X", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
+end)
+
+AddScriptButton(saePage, "Night Hub V1", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/StealEggOnly.luau"))()
+end)
+
+AddScriptButton(saePage, "Night Hub V2", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/WhiteX1208/Scripts/refs/heads/main/StealAnEggs.luau"))()
+end)
+
+AddScriptButton(saePage, "Sena", function()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/senarblx/sena/refs/heads/main/senav3go'))()
+end)
+
+AddScriptButton(saePage, "Lennon Hub V2", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/lennonxscripts/lennonhubv2/refs/heads/main/stealaneggv2"))()
+end)
+
+AddScriptButton(saePage, "Zeroin Hub", function()
+    loadstring(game:HttpGet("https://zeroinhub.com/api/script"))()
+end)
+
+AddScriptButton(saePage, "Foxname Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/caomod2077/Script/refs/heads/main/Fn-stealanegg.lua"))()
+end)
+
+AddScriptButton(saePage, "Valinc Hub", function()
+    loadstring(game:HttpGet("https://api.valincsyndicate.com/v1/releases/5502cba03703f4a3628d522d396b80d8.lua"))()
+end)
+
+AddScriptButton(saePage, "Blyxo Hub", function()
+    loadstring(game:HttpGet("https://flowauth.net/v1/loaders/69d3463240384f3a73fbe32c178093a2.lua"))()
+end)
+
+AddScriptButton(saePage, "BK Hub", function()
+    loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/9ee4edde227ac85f50872bf9e4226508.lua"))()
+end)
+
+AddScriptButton(saePage, "Neva Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/VEZ2/NEVAHUB/main/2"))()
+end)
+
+AddScriptButton(saePage, "Bigfroot Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/hanniii1/Loader/refs/heads/main/BFLoader.lua"))()
+end)
+
+AddScriptButton(saePage, "Nasi Rendang Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/JualNasiRendang/loader/refs/heads/main/main.lua"))()
+end)
+
+AddScriptButton(saePage, "Lumin Hub", function()
+    loadstring(game:HttpGet("http://luminon.top/loader.lua"))()
+end)
+
+AddScriptButton(saePage, "Airflow Hub", function()
+    loadstring(game:HttpGet("https://airflowscript.com/loader"))()
+end)
+
+AddScriptButton(saePage, "Saiops Hub", function()
+    loadstring(game:HttpGet("https://api.saiops.cc/scripts/Steal-An-Egg-Script.lua"))()
+end)
+
+AddScriptButton(saePage, "Vantage Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/MisterNovitski/Vantage/refs/heads/main/mm2.txt", true))()
+end)
+
+AddScriptButton(saePage, "Nova Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/NovaHubRBLX/NovaHub/refs/heads/main/novahub.lua"))()
+end)
+
+AddScriptButton(saePage, "Ajjans Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/virtuososvisualedits-prog/Ww/refs/heads/main/final-obfuscated.lua"))()
+end)
+
+AddScriptButton(saePage, "Nemesis Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/x2zu/loader/main/freeloader.lua", true))()
+end)
+
+AddScriptButton(saePage, "Solix Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/bao8jl/solixhub/main/loader"))()
+end)
+
+AddScriptButton(saePage, "Hoshi Hub", function()
+    loadstring(game:HttpGet("https://hoshihub.site/loader.lua"))()
+end)
+
+AddScriptButton(saePage, "Axon Hub", function()
+    loadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/97c3f6db55a2cf72141537a85458e5a7.lua"))()
+end)
+
+AddScriptButton(saePage, "Flow Hub", function()
+    loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/5946add9ab91f1e04cb005346a8b1968.lua"))()
+end)
+
+AddScriptButton(saePage, "Rift Hub", function()
+    loadstring(game:HttpGet("https://rifton.top/loader.lua"))()
+end)
+
+AddScriptButton(saePage, "Kexxe Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/premiumbuddy/kex/refs/heads/main/kexxxx"))()
+end)
+
+AddScriptButton(saePage, "Vxeze Hub", function()
+    loadstring(game:HttpGet("https://vxezestudio.online/api/scripts/script_G5CGjqj2X3r05/stream/init"))()
+end)
+
+AddScriptButton(saePage, "Snowy Hub", function()
+    loadstring(game:HttpGet("https://flowauth.net/v1/ui/a87f00d9adf63658655fcd02ab86a4ef.lua"))()
+end)
+
+AddScriptButton(saePage, "Omg Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Omgshit/Scripts/main/MainLoader.lua"))()
+end)
+
+AddScriptButton(saePage, "Asvra Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/asvraRoblox/stealegg/refs/heads/main/main"))()
+end)
+
+AddScriptButton(saePage, "Zero Hub", function()
+    loadstring(game:HttpGet("https://www.zeroimpact.online/raw/loader"))()
+end)
+
+AddScriptButton(saePage, "Miranda Hub", function()
+    loadstring(game:HttpGet("https://api.jnkie.com/api/v1/luascripts/public/f56794e06dcfb4adad5dc739dff503f38ca8f7cc94e045eafe823a3c5f09c4cc/download"))()
+end)
+
+AddScriptButton(saePage, "Probest Hub", function()
+    loadstring(game:HttpGet("https://api.jnkie.com/api/v1/luascripts/public/0199b576f5c2d5a3415910f9f4e1de0a566b4d1da5b1cfa5d2f71ade9bdcaa24/download"))()
+end)
+
+AddScriptButton(saePage, "GS Hub", function()
+    loadstring(game:HttpGet("https://gist.githubusercontent.com/spiritualgaming1123-beep/46ef55c5f8284e076aafc5ebd12233f4/raw/5b24749c3931c1838a76e64c9af508dcdd03700a/gistfile1.lua"))()
+end)
+
+AddScriptButton(saePage, "Sportsclub Hub", function()
+    loadstring(game:HttpGet("https://loader.sportsclub.fun/loader.luau"))()
+end)
+
+AddScriptButton(saePage, "Scriptverse Hub", function()
+    loadstring(game:HttpGet("https://scriptversekey.xyz/s/steal-an-egg"))()
+end)
+
+AddScriptButton(saePage, "ZK Hub", function()
+    _G.Config = {ApiKey = "ZKCOMMUNITYcfdb742a751aad57d79b375ea6c7cbc7"}
+    loadstring(game:HttpGet("https://zkcommunity.cloud/loader.lua"))()
+end)
+
+AddScriptButton(saePage, "Axonic Hub", function()
+    _G.loadstring = game:HttpGet("https://raw.githubusercontent.com/Kenniel123/Steal-A-Egg/refs/heads/main/Steal%20A%20Egg")
+    loadstring(_G.loadstring)()
+end)
+
+AddScriptButton(saePage, "Pig Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/mopsscript7-gif/steal-an-egg/refs/heads/main/script.lua"))()
+end)
+
+AddScriptButton(saePage, "Neox Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/hassanxzayn-lua/NEOXHUBMAIN/refs/heads/main/loader", true))()
+end)
+
+AddScriptButton(saePage, "Clover Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Ryuun0x/Clover/refs/heads/main/main.lua"))()
+end)
+
+AddScriptButton(saePage, "Fyy Hub", function()
+    loadstring(game:HttpGet("https://fyycommunity.com/"))()
+end)
+
+AddScriptButton(saePage, "Sys Hub", function()
+    loadstring(game:HttpGet("https://syshub.fun/free"))()
+end)
+
+AddScriptButton(saePage, "Chiyo Hub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/kaisenlmao/loader/refs/heads/main/chiyo.lua"))()
+end)
+
+AddScriptButton(saePage, "ChilliHub", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/kadit9999/stealanegg/refs/heads/main/chilly.lua"))()
+end)
+
+AddScriptButton(saePage, "NoName", function()
+    _G.script_key = "wFCpjnuWREjHWOhXYamFecssieCAQNdy"
+    loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/359e97f8618e9008afe5f496184ebb7c.lua"))()
+end)
+
+-- Blox Fruit Script
+AddScriptButton(bfPage, "RealKid", function()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/realkidhub/realkid/refs/heads/main/main.lua"))()
+end)
