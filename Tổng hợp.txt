@@ -1,4 +1,4 @@
--- [[ BRAKYO HUB - NEW SCRIPTS ADDED ONLY ]]
+-- [[ BRAKYO HUB - UPDATED LENNON HUB V2 ]]
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -483,8 +483,9 @@ AddScriptButton(saePage, "Sena", function()
     loadstring(game:HttpGet('https://raw.githubusercontent.com/senarblx/sena/refs/heads/main/senav3go'))()
 end)
 
+-- Cập nhật Lennon Hub V2 theo link mới cung cấp
 AddScriptButton(saePage, "Lennon Hub V2", function()
-    loadstring(game:HttpGet("https://api.jnkie.com/api/v1/luascripts/public/bf52181bce5c28e6ecd16eebfa1a88ddaf646c7acb10015fbaa7b30dc7bad0a8/download"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/lennonxscripts/lennonhubv2/refs/heads/main/stealaneggv2"))()
 end)
 
 -- ==================== CÁC SCRIPT MỚI LẤY TỪ FILE PDF (KHÔNG BỊ TRÙNG) ====================
