@@ -1,4 +1,4 @@
--- [[ BRAKYO HUB - ONE-TIME SPECIAL KEY SYSTEM ]]
+-- [[ BRAKYO HUB - UPDATED KEY SYSTEM ]]
 local CoreGui = game:GetService("CoreGui")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
@@ -13,35 +13,44 @@ BrakyoHub.Name = "BrakyoHub"
 BrakyoHub.Parent = CoreGui
 BrakyoHub.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- Cấu hình Key đặc biệt
-local SpecialKey = "BraKyo1421"
-local KeyDuration = 6 * 60 * 60 -- Thời hạn 6 tiếng
-local UsedDeviceFile = "BrakyoHub_DeviceLocked.json" -- File khóa thiết bị vĩnh viễn sau khi dùng key đặc biệt
-local ActiveKeyFile = "BrakyoHub_ActiveSession.json" -- File lưu thời gian phiên đang chạy
+-- Danh sách Key thông thường (Hạn 12 tiếng, được thêm các key mới của bạn)
+local ValidKeys = {
+    ["O5J6sql"] = true,
+    ["6lhq071K"] = true,
+    ["Y61Vql9d"] = true,
+    ["Kr4i8P2k"] = true,
+    ["Ob927pa"] = true,
+    ["BK-7vQ9xL2mR8pT4zN"] = true,
+    ["BK-X5nK8wP3qY7dH6s"] = true,
+    ["BK-9mF2rV8xC5kL7qT"] = true,
+    ["BK-Q4zN7pX2wM9sK6dR"] = true,
+    ["BK-H8tL3vQ7nY5xP2mK"] = true,
+    ["BK-R6pW9kT4zX8qN3vL"] = true,
+    ["BK-M7xC2qV9nP5rK8tH"] = true,
+    ["BK-Y3dN8mL6wQ2xR9pV"] = true
+}
 
--- Hàm kiểm tra xem thiết bị này đã từng dùng key đặc biệt này chưa (Chống dùng lại vĩnh viễn trên máy)
+-- Cấu hình Key đặc biệt (Chỉ dùng 1 lần duy nhất vĩnh viễn trên máy, hạn 6 tiếng)
+local SpecialKey = "BraKyo1421"
+local SpecialKeyDuration = 6 * 60 * 60 
+local NormalKeyDuration = 12 * 60 * 60 
+
+local UsedDeviceFile = "BrakyoHub_DeviceLocked.json"
+local ActiveKeyFile = "BrakyoHub_ActiveSession.json"
+
 local function IsDeviceLocked()
     if not (readfile and isfile) then return false end
-    if isfile(UsedDeviceFile) then
-        return true
-    end
-    return false
+    return isfile(UsedDeviceFile)
 end
 
--- Hàm khóa thiết bị lại sau khi đã nhập key đặc biệt
 local function LockDevicePermanently()
     if writefile then
         pcall(function()
-            local lockData = game:GetService("HttpService"):JSONEncode({
-                LockedTime = os.time(),
-                Note = "Device has already used the one-time special key."
-            })
-            writefile(UsedDeviceFile, lockData)
+            writefile(UsedDeviceFile, game:GetService("HttpService"):JSONEncode({LockedTime = os.time()}))
         end)
     end
 end
 
--- Hàm kiểm tra xem phiên đăng nhập 6 tiếng hiện tại còn hạn không
 local function CheckActiveSession()
     if not (readfile and writefile and isfile and delfile) then return false end
     if isfile(ActiveKeyFile) then
@@ -52,7 +61,7 @@ local function CheckActiveSession()
             if os.time() < data.ExpireTime then
                 return true
             else
-                delfile(ActiveKeyFile) -- Hết hạn 6 tiếng thì xóa phiên hoạt động
+                delfile(ActiveKeyFile)
             end
         end
     end
@@ -60,9 +69,8 @@ local function CheckActiveSession()
 end
 
 -- ==================== KEY SYSTEM FRAME ====================
-local KeySystemFrame = Instance.new("Frame")
+local KeySystemFrame = Instance.new("Frame", BrakyoHub)
 KeySystemFrame.Name = "KeySystemFrame"
-KeySystemFrame.Parent = BrakyoHub
 KeySystemFrame.BackgroundColor3 = Color3.fromRGB(18, 26, 32)
 KeySystemFrame.BackgroundTransparency = 0.15
 KeySystemFrame.BorderSizePixel = 0
@@ -72,46 +80,36 @@ KeySystemFrame.Draggable = true
 KeySystemFrame.Active = true
 KeySystemFrame.ClipsDescendants = true
 
-local KeyCorner = Instance.new("UICorner")
-KeyCorner.CornerRadius = UDim.new(0, 10)
-KeyCorner.Parent = KeySystemFrame
-
-local KeyStroke = Instance.new("UIStroke")
-KeyStroke.Parent = KeySystemFrame
+Instance.new("UICorner", KeySystemFrame).CornerRadius = UDim.new(0, 10)
+local KeyStroke = Instance.new("UIStroke", KeySystemFrame)
 KeyStroke.Color = Color3.fromRGB(0, 220, 220)
 KeyStroke.Thickness = 1.5
 
-local KeyTitle = Instance.new("TextLabel")
-KeyTitle.Parent = KeySystemFrame
+local KeyTitle = Instance.new("TextLabel", KeySystemFrame)
 KeyTitle.BackgroundTransparency = 1
 KeyTitle.Position = UDim2.new(0, 0, 0, 12)
 KeyTitle.Size = UDim2.new(1, 0, 0, 30)
 KeyTitle.Font = Enum.Font.GothamBold
-KeyTitle.Text = "⚡ BRAKYO HUB - ONE-TIME KEY"
+KeyTitle.Text = "⚡ BRAKYO HUB - KEY SYSTEM"
 KeyTitle.TextColor3 = Color3.fromRGB(0, 220, 220)
 KeyTitle.TextSize = 16
 
-local KeyBox = Instance.new("TextBox")
-KeyBox.Parent = KeySystemFrame
+local KeyBox = Instance.new("TextBox", KeySystemFrame)
 KeyBox.BackgroundColor3 = Color3.fromRGB(28, 42, 53)
 KeyBox.BackgroundTransparency = 0.2
 KeyBox.BorderSizePixel = 0
 KeyBox.Position = UDim2.new(0.5, -170, 0, 50)
 KeyBox.Size = UDim2.new(0, 340, 0, 36)
 KeyBox.Font = Enum.Font.Gotham
-KeyBox.PlaceholderText = "Nhập Key đặc biệt của bạn..."
+KeyBox.PlaceholderText = "Nhập Key của bạn..."
 KeyBox.Text = ""
 KeyBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 KeyBox.PlaceholderColor3 = Color3.fromRGB(150, 170, 190)
 KeyBox.TextSize = 13
 KeyBox.ClearTextOnFocus = false
+Instance.new("UICorner", KeyBox).CornerRadius = UDim.new(0, 6)
 
-local KeyBoxCorner = Instance.new("UICorner")
-KeyBoxCorner.CornerRadius = UDim.new(0, 6)
-KeyBoxCorner.Parent = KeyBox
-
-local SubmitBtn = Instance.new("TextButton")
-SubmitBtn.Parent = KeySystemFrame
+local SubmitBtn = Instance.new("TextButton", KeySystemFrame)
 SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 220, 220)
 SubmitBtn.Position = UDim2.new(0.5, -170, 0, 94)
 SubmitBtn.Size = UDim2.new(0, 340, 0, 36)
@@ -119,26 +117,21 @@ SubmitBtn.Font = Enum.Font.GothamBold
 SubmitBtn.Text = "XÁC NHẬN KEY"
 SubmitBtn.TextColor3 = Color3.fromRGB(15, 15, 20)
 SubmitBtn.TextSize = 13
+Instance.new("UICorner", SubmitBtn).CornerRadius = UDim.new(0, 6)
 
-local SubmitCorner = Instance.new("UICorner")
-SubmitCorner.CornerRadius = UDim.new(0, 6)
-SubmitCorner.Parent = SubmitBtn
-
-local StatusLabel = Instance.new("TextLabel")
-StatusLabel.Parent = KeySystemFrame
+local StatusLabel = Instance.new("TextLabel", KeySystemFrame)
 StatusLabel.BackgroundTransparency = 1
-StatusLabel.Position = UDim2.new(0, 0, 0, 145)
-StatusLabel.Size = UDim2.new(1, 0, 0, 60)
+StatusLabel.Position = UDim2.new(0, 0, 0, 140)
+StatusLabel.Size = UDim2.new(1, 0, 0, 65)
 StatusLabel.Font = Enum.Font.GothamMedium
-StatusLabel.Text = "Lưu ý: Key 'BraKyo1421' chỉ dùng được ĐÚNG 1 LẦN duy nhất trên thiết bị này và có thời hạn hoạt động 6 tiếng."
+StatusLabel.Text = "Key thường: Hạn 12h.\nKey 'BraKyo1421': Chỉ dùng 1 lần duy nhất trên máy này (Hạn 6h)."
 StatusLabel.TextColor3 = Color3.fromRGB(180, 200, 220)
 StatusLabel.TextSize = 11
 StatusLabel.TextWrapped = true
 
 -- ==================== DISCLAIMER FRAME ====================
-local DisclaimerFrame = Instance.new("Frame")
+local DisclaimerFrame = Instance.new("Frame", BrakyoHub)
 DisclaimerFrame.Name = "DisclaimerFrame"
-DisclaimerFrame.Parent = BrakyoHub
 DisclaimerFrame.BackgroundColor3 = Color3.fromRGB(18, 26, 32)
 DisclaimerFrame.BackgroundTransparency = 0.1
 DisclaimerFrame.BorderSizePixel = 0
@@ -146,18 +139,12 @@ DisclaimerFrame.Position = UDim2.new(0.5, -200, 0.5, -110)
 DisclaimerFrame.Size = UDim2.new(0, 400, 0, 220)
 DisclaimerFrame.Visible = false
 DisclaimerFrame.ZIndex = 20
-
-local DiscCorner = Instance.new("UICorner")
-DiscCorner.CornerRadius = UDim.new(0, 10)
-DiscCorner.Parent = DisclaimerFrame
-
-local DiscStroke = Instance.new("UIStroke")
-DiscStroke.Parent = DisclaimerFrame
+Instance.new("UICorner", DisclaimerFrame).CornerRadius = UDim.new(0, 10)
+local DiscStroke = Instance.new("UIStroke", DisclaimerFrame)
 DiscStroke.Color = Color3.fromRGB(0, 220, 220)
 DiscStroke.Thickness = 1.5
 
-local DiscText = Instance.new("TextLabel")
-DiscText.Parent = DisclaimerFrame
+local DiscText = Instance.new("TextLabel", DisclaimerFrame)
 DiscText.BackgroundTransparency = 1
 DiscText.Position = UDim2.new(0, 20, 0, 20)
 DiscText.Size = UDim2.new(1, -40, 0, 110)
@@ -167,8 +154,7 @@ DiscText.TextColor3 = Color3.fromRGB(255, 255, 255)
 DiscText.TextSize = 14
 DiscText.TextWrapped = true
 
-local AcceptDiscBtn = Instance.new("TextButton")
-AcceptDiscBtn.Parent = DisclaimerFrame
+local AcceptDiscBtn = Instance.new("TextButton", DisclaimerFrame)
 AcceptDiscBtn.BackgroundColor3 = Color3.fromRGB(0, 220, 220)
 AcceptDiscBtn.Position = UDim2.new(0.5, -75, 0, 145)
 AcceptDiscBtn.Size = UDim2.new(0, 150, 0, 38)
@@ -176,13 +162,11 @@ AcceptDiscBtn.Font = Enum.Font.GothamBold
 AcceptDiscBtn.Text = "XÁC NHẬN"
 AcceptDiscBtn.TextColor3 = Color3.fromRGB(15, 15, 20)
 AcceptDiscBtn.TextSize = 13
-
 Instance.new("UICorner", AcceptDiscBtn).CornerRadius = UDim.new(0, 6)
 
 -- ==================== MIN BUTTON ====================
-local MinButton = Instance.new("TextButton")
+local MinButton = Instance.new("TextButton", BrakyoHub)
 MinButton.Name = "MinButton"
-MinButton.Parent = BrakyoHub
 MinButton.BackgroundColor3 = Color3.fromRGB(18, 26, 32)
 MinButton.BackgroundTransparency = 0.2
 MinButton.BorderSizePixel = 0
@@ -195,7 +179,6 @@ MinButton.TextSize = 18
 MinButton.Draggable = true
 MinButton.Visible = false
 MinButton.Active = true
-
 Instance.new("UICorner", MinButton).CornerRadius = UDim.new(1, 0)
 local MinStroke = Instance.new("UIStroke", MinButton)
 MinStroke.Color = Color3.fromRGB(0, 220, 220)
@@ -203,9 +186,8 @@ MinStroke.Transparency = 0.2
 MinStroke.Thickness = 2
 
 -- ==================== MAIN FRAME ====================
-local MainFrame = Instance.new("Frame")
+local MainFrame = Instance.new("Frame", BrakyoHub)
 MainFrame.Name = "MainFrame"
-MainFrame.Parent = BrakyoHub
 MainFrame.BackgroundColor3 = Color3.fromRGB(18, 26, 32)
 MainFrame.BackgroundTransparency = 0.15
 MainFrame.BorderSizePixel = 0
@@ -215,16 +197,13 @@ MainFrame.Draggable = true
 MainFrame.Active = true
 MainFrame.ClipsDescendants = true
 MainFrame.Visible = false
-
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
 local MainStroke = Instance.new("UIStroke", MainFrame)
 MainStroke.Color = Color3.fromRGB(0, 220, 220)
 MainStroke.Thickness = 1.5
 
 -- ==================== CONFIRM CLOSE FRAME ====================
-local ConfirmCloseFrame = Instance.new("Frame")
-ConfirmCloseFrame.Name = "ConfirmCloseFrame"
-ConfirmCloseFrame.Parent = MainFrame
+local ConfirmCloseFrame = Instance.new("Frame", MainFrame)
 ConfirmCloseFrame.BackgroundColor3 = Color3.fromRGB(14, 20, 25)
 ConfirmCloseFrame.BackgroundTransparency = 0.1
 ConfirmCloseFrame.Size = UDim2.new(1, 0, 1, 0)
@@ -265,7 +244,6 @@ Instance.new("UICorner", NoBtn).CornerRadius = UDim.new(0, 6)
 
 -- ==================== TABS & CONTAINERS ====================
 local RightContainer = Instance.new("Frame", MainFrame)
-RightContainer.Name = "RightContainer"
 RightContainer.BackgroundColor3 = Color3.fromRGB(28, 42, 53)
 RightContainer.BackgroundTransparency = 0.2
 RightContainer.BorderSizePixel = 0
@@ -275,9 +253,8 @@ Instance.new("UICorner", RightContainer).CornerRadius = UDim.new(0, 6)
 
 local Pages = {}
 local function CreateTab(name)
-    local Page = Instance.new("ScrollingFrame")
+    local Page = Instance.new("ScrollingFrame", RightContainer)
     Page.Name = name .. "Page"
-    Page.Parent = RightContainer
     Page.Active = true
     Page.BackgroundTransparency = 1
     Page.Size = UDim2.new(1, 0, 1, 0)
@@ -296,7 +273,6 @@ end
 local bfPage = CreateTab("Blox Fruit")
 local saePage = CreateTab("Steal An Egg")
 
--- Nếu thiết bị đã có phiên hoạt động hợp lệ (chưa quá 6 tiếng từ lúc nhập key đặc biệt)
 if CheckActiveSession() then
     KeySystemFrame:Destroy()
     DisclaimerFrame:Destroy()
@@ -304,30 +280,36 @@ if CheckActiveSession() then
     bfPage.Visible = true
 end
 
--- Xử lý logic Xác nhận Key theo đúng ý bạn
 SubmitBtn.MouseButton1Click:Connect(function()
     local enteredKey = KeyBox.Text
     
     if enteredKey == SpecialKey then
-        -- Bước 1: Kiểm tra xem thiết bị này đã từng dùng key đặc biệt này bao giờ chưa
         if IsDeviceLocked() then
             StatusLabel.TextColor3 = Color3.fromRGB(255, 90, 90)
-            StatusLabel.Text = "❌ Thất bại! Thiết bị này đã từng sử dụng Key đặc biệt này rồi và không thể dùng lại nữa."
+            StatusLabel.Text = "❌ Thiết bị này đã dùng key đặc biệt này rồi và không thể dùng lại nữa!"
             return
         end
         
-        -- Bước 2: Nếu chưa từng dùng, tiến hành khóa thiết bị vĩnh viễn và cấp hạn 6 tiếng cho phiên này
         LockDevicePermanently()
-        
         if writefile then
-            local expireTime = os.time() + KeyDuration
-            local sessionData = game:GetService("HttpService"):JSONEncode({ExpireTime = expireTime})
-            writefile(ActiveKeyFile, sessionData)
+            local expireTime = os.time() + SpecialKeyDuration
+            writefile(ActiveKeyFile, game:GetService("HttpService"):JSONEncode({ExpireTime = expireTime}))
         end
         
         StatusLabel.TextColor3 = Color3.fromRGB(0, 220, 220)
-        StatusLabel.Text = "✅ Thành công! Kích hoạt thành công thời hạn 6 tiếng."
+        StatusLabel.Text = "✅ Thành công! Kích hoạt 6 tiếng."
+        task.wait(0.8)
+        KeySystemFrame:Destroy()
+        DisclaimerFrame.Visible = true
         
+    elseif ValidKeys[enteredKey] then
+        if writefile then
+            local expireTime = os.time() + NormalKeyDuration
+            writefile(ActiveKeyFile, game:GetService("HttpService"):JSONEncode({ExpireTime = expireTime}))
+        end
+        
+        StatusLabel.TextColor3 = Color3.fromRGB(0, 220, 220)
+        StatusLabel.Text = "✅ Thành công! Kích hoạt 12 tiếng."
         task.wait(0.8)
         KeySystemFrame:Destroy()
         DisclaimerFrame.Visible = true
