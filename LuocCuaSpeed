@@ -1,0 +1,588 @@
+repeat
+	task.wait()
+until game:IsLoaded()
+
+local tbl
+
+tbl = {
+	IsDetected = false,
+	_unpack = function(arg, arg2, arg3)
+		arg2 = arg2 or 1
+		arg3 = arg3 or #arg
+		if arg2 > arg3 then
+			return
+		end
+		return arg[arg2], tbl._unpack(arg, arg2 + 1, arg3)
+	end,
+	_pcall = function(arg, ...)
+		local tbl2 = { ... }
+
+		local ok, result = pcall(function()
+			return arg(tbl._unpack(tbl2))
+		end)
+
+		if not ok then
+			return false, result
+		end
+		return true, result
+	end,
+}
+
+local function fn()
+	return true
+end
+
+local v, v2 = tbl._pcall(debug.info, fn, "f")
+
+if not v or v2 ~= fn then
+	tbl.IsDetected = true
+	LPH_CRASH()
+end
+
+local v3, v4 = tbl._pcall(debug.info, 2, "f")
+
+if not v3 or v4 ~= pcall then
+	tbl.IsDetected = true
+	LPH_CRASH()
+end
+
+local v5 = (cloneref or function(arg)
+	return arg
+end)(game:GetService("RunService"))
+
+if v5:IsStudio() then
+	tbl.IsDetected = true
+	LPH_CRASH()
+end
+
+if v5:IsServer() then
+	tbl.IsDetected = true
+	LPH_CRASH()
+end
+
+if tbl.IsDetected then
+	return
+end
+
+loadstring([[ 
+  function LPH_NO_VIRTUALIZE(f) return f end;
+  function LPH_JIT_MAX(f) return f end;
+  function LPH_JIT(f) return f end;
+
+  function LPH_ENCNUM(n, ...) return n end;
+  function LPH_ENCSTR(s, ...) return s end;
+  function LPH_ENCFUNC(f, ...) return f end;
+  function LPH_ENCBUF(b, ...) return b end;
+
+  function LPH_ATTRIBUTES(...) end;
+  function LPH_REWRITE(expr, ...) return expr end;
+  function LPH_STACKALLOC(size, zeroOrOne) return {} end;
+  function LPH_PRECHECK(...) end;
+
+  function VM(...) end;
+  function PRESET(...) end;
+  function ENCRYPT(...) end;
+  function OPTIMIZE(...) end;
+  function ERROR_HANDLING(...) end;
+  function TRANSFORM(...) end;
+  NONE, OPAL, ONYX = 0, 1, 2;
+  FAST, SECURE = 0, 1;
+  CONTROL_FLOW, EXTRACT, INLINE, UNROLL, NO_UPVALUES, level = 0, 0, 0, 0, 0, 0;
+]])()
+
+local function fn2()
+	local function fn3()
+		local v6 = cloneref
+		local obj = setmetatable({}, { __mode = "v" })
+
+		return v6 and function(arg)
+			if not arg then
+				return nil
+			end
+			local debugId = arg:GetDebugId() or arg
+			local v7 = obj[debugId]
+			if v7 then
+				return v7
+			end
+			local v8 = v6(arg)
+			obj[debugId] = v8
+			return v8
+		end or function(arg)
+			return arg
+		end
+	end
+
+	local v6 = fn3()
+
+	local obj = setmetatable({}, { __index = function(arg, arg2)
+		return v6(game:GetService(arg2))
+	end })
+
+	local players = obj.Players
+	local replicatedStorage = obj.ReplicatedStorage
+	local userInputService = obj.UserInputService
+	local runService = obj.RunService
+	local lighting = obj.Lighting
+	local httpService = obj.HttpService
+	local teleportService = obj.TeleportService
+	local coreGui = obj.CoreGui
+	local localPlayer = players.LocalPlayer
+	local playerGui = localPlayer:WaitForChild("PlayerGui")
+	local character = localPlayer.Character
+	local humanoid = character and character:WaitForChild("Humanoid") or nil
+	local humanoidRootPart = character and character:FindFirstChild("HumanoidRootPart") or nil
+
+	local tbl2 = {
+		Enabled = {
+			IsTeleporting = false,
+			["Bypass Anti Teleport"] = true,
+			["Fast Switch Bat"] = true,
+			["Auto Treadmill"] = false,
+			["Auto Rift Sacrifice"] = false,
+			["Auto Reroll Rift Recipe"] = false,
+			["Prioritize Rift Recipe Eggs"] = false,
+			["Prioritize Rift Egg"] = false,
+		},
+		Module = {},
+		Connections = {},
+		Cached = {
+			Stuck = os.time(),
+			JSON = {},
+			Count = { WalkSpeed = 0, NoClip = 0, Fail = 0 },
+			Image = {},
+			Temporary = {},
+			Task = {},
+			BlockedEggs = {},
+		},
+		Stored = { Data = {}, UI = {}, StateUpdate = {} },
+	}
+
+	_G.LastAction = _G.LastAction or "Idle"
+	local module = tbl2.Module
+	local connections = tbl2.Connections
+	local cached = tbl2.Cached
+	local stored = tbl2.Stored
+	local enabled = tbl2.Enabled
+
+	local function fn4(arg, arg2)
+		local StarterGui = game:GetService("StarterGui")
+		local name = localPlayer.Name
+
+		if name == "fanoffgteev999" or name == "KXbMrzy" or name == "blacjacqv" or name == "asuhdpas9gudhas9h" then
+			StarterGui:SetCore("SendNotification", { Title = arg2 or "", Text = arg, Icon = "rbxassetid://0", Duration = 5 })
+		end
+	end
+
+	local function fn5(arg)
+		local ok, result = pcall(function()
+			return (load or loadstring)(game:HttpGet(arg))()
+		end)
+
+		if ok then
+			return result
+		end
+	end
+
+	local tbl3 = {
+		SHX = fn5("https://raw.githubusercontent.com/AhmadV99/Main/refs/heads/main/Library/Lib_5.5.0.lua"),
+		Funcs = fn5("https://raw.githubusercontent.com/AhmadV99/Main/refs/heads/main/Library/Example/FuncsV4.lua"),
+	}
+
+	local shx = tbl3.SHX
+	local funcs = tbl3.Funcs
+
+	local fn6 = firesignal or getconnections and function(arg)
+		for _, v7 in getconnections(arg) do
+			if v7.Function then
+				task.spawn(v7.Function)
+			end
+		end
+	end or function()
+	end
+
+	local function fn7()
+		local function fn8()
+			return {
+				Connections = function(arg, arg2, arg3)
+					local connection = nil
+
+					connection = arg:Connect(function(...)
+						if shx.Unloaded then
+							if connection then
+								connection:Disconnect()
+							end
+
+							return
+						end
+
+						local ok, result = pcall(arg2, ...)
+
+						if not ok then
+							fn4(result, "")
+						end
+					end)
+
+					if arg3 then
+						connections[arg3] = connection
+					end
+
+					return connection
+				end,
+				Disconnect = function(arg)
+					if connections[arg] then
+						connections[arg]:Disconnect()
+						connections[arg] = nil
+					end
+				end,
+				StartLoop = function(arg, arg2)
+					while not shx.Unloaded do
+						if enabled[arg] then
+							local ok, result = pcall(arg2)
+
+							if not ok then
+								fn4(result, arg)
+							end
+						end
+
+						task.wait(0)
+					end
+				end,
+				Fallback = function(arg, arg2, arg3)
+					local n = cached.Count[arg2] or 0
+
+					if arg ~= nil then
+						n += 1
+						cached.Count[arg2] = n
+					end
+
+					if n > 1 then
+						if not enabled[arg2] then
+							arg3()
+						end
+					end
+				end,
+				Notify = function(arg, arg2, arg3)
+					pcall(function()
+						game:GetService("StarterGui"):SetCore("SendNotification", {
+							Title = tostring(arg or "Notice"),
+							Text = tostring(arg2 or ""),
+							Icon = "rbxassetid://0",
+							Duration = arg3 or 4,
+						})
+					end)
+				end,
+			}
+		end
+
+		local tbl4 = {
+			Webhook = function(arg, arg2)
+				local request_ = request or syn and syn.request or http and http.request or fluxus and fluxus.request or http_request
+				if not request_ then
+					return
+				end
+
+				request_({
+					Url = arg,
+					Body = httpService:JSONEncode(arg2),
+					Method = "POST",
+					Headers = { ["Content-Type"] = "application/json" },
+				})
+			end,
+			Utils = fn8(),
+		}
+
+		local function fn9()
+			local tbl5
+
+			tbl5 = {
+				Logs = {},
+				MaxLogs = 30,
+				CurrentState = "IDLE_STANDBY",
+				SubAction = "Initializing",
+				ActiveTarget = "None",
+				MovementOwner = "None",
+				Timeouts = 0,
+				Retries = 0,
+				SuccessClaims = 0,
+				Gui = nil,
+				Fps = 60,
+				Ping = 0,
+				LastFpsUpdate = os.clock(),
+				FrameCount = 0,
+				Log = function(arg, arg2)
+					if not arg or arg == "" then
+						return
+					end
+					arg2 = arg2 or "INFO"
+					local str = string.format("<font color=\"#888888\">[%s]</font> <font color=\"%s\"><b>[%s]</b></font> <font color=\"#EEEEEE\">%s</font>", os.date("%X"), arg2 == "STEAL" and "#00FF7F" or arg2 == "SAKURA" and "#FF69B4" or arg2 == "PLACE" and "#6495ED" or arg2 == "TREADMILL" and "#FFD700" or arg2 == "SELL" and "#FFA500" or arg2 == "FUSE" and "#BA55D3" or arg2 == "NAV" and "#00CED1" or arg2 == "ACTION" and "#00BFFF" or "#AAAAAA", arg2, tostring(arg))
+					table.insert(tbl5.Logs, 1, str)
+
+					if #tbl5.Logs > tbl5.MaxLogs then
+						table.remove(tbl5.Logs)
+					end
+				end,
+			}
+
+			local v7 = nil
+
+			task.spawn(function()
+				while true do
+					local lastAction = _G.LastAction
+
+					if lastAction and lastAction ~= "" and lastAction ~= v7 then
+						v7 = lastAction
+						local str
+
+						if string.find(lastAction, "^Steal") then
+							str = "STEAL"
+						elseif string.find(lastAction, "^Sakura") then
+							str = "SAKURA"
+						elseif string.find(lastAction, "^Place") or string.find(lastAction, "^Pen") then
+							str = "PLACE"
+						elseif string.find(lastAction, "^Treadmill") then
+							str = "TREADMILL"
+						elseif string.find(lastAction, "^SafeZone") or string.find(lastAction, "^Nav") then
+							str = "NAV"
+						elseif string.find(lastAction, "^Sell") then
+							str = "SELL"
+						else
+							str = "ACTION"
+
+							if string.find(lastAction, "^Fuse") then
+								str = "FUSE"
+							end
+						end
+
+						tbl5.Log(lastAction, str)
+						tbl5.SubAction = lastAction
+					end
+
+					task.wait(0.05)
+				end
+			end)
+
+			tbl5.SetState = function(arg, arg2, arg3)
+				if arg then
+					tbl5.CurrentState = tostring(arg)
+				end
+
+				if arg2 then
+					tbl5.SubAction = tostring(arg2)
+					_G.LastAction = tostring(arg2)
+				end
+
+				if arg3 then
+					tbl5.ActiveTarget = tostring(arg3)
+				end
+			end
+
+			tbl5.CreateGui = function()
+				if tbl5.Gui then
+					return tbl5.Gui
+				end
+
+				local ok = pcall(function()
+					return coreGui
+				end) and coreGui or playerGui
+
+				local screenGui = Instance.new("ScreenGui")
+				screenGui.Name = "BraKyo_DebugInspector"
+				screenGui.ResetOnSpawn = false
+				screenGui.DisplayOrder = 9999
+				screenGui.Enabled = enabled["Debug Inspector"] or false
+				
+				local frame = Instance.new("Frame")
+				frame.Name = "MainFrame"
+				frame.Size = UDim2.fromOffset(360, 290)
+				frame.Position = UDim2.new(0.02, 0, 0.2, 0)
+				-- Tùy chỉnh màu Cyan mờ mờ cho MainFrame
+				frame.BackgroundColor3 = Color3.fromRGB(12, 28, 36)
+				frame.BackgroundTransparency = 0.35
+				frame.BorderSizePixel = 0
+				frame.Active = true
+				frame.Draggable = true
+				frame.Parent = screenGui
+				
+				local uiCorner = Instance.new("UICorner")
+				uiCorner.CornerRadius = UDim.new(0, 8)
+				uiCorner.Parent = frame
+				
+				local uiStroke = Instance.new("UIStroke")
+				-- Viền Cyan mờ mờ
+				uiStroke.Color = Color3.fromRGB(0, 220, 240)
+				uiStroke.Transparency = 0.3
+				uiStroke.Thickness = 1.4
+				uiStroke.Parent = frame
+				
+				local textLabel = Instance.new("TextLabel")
+				textLabel.Size = UDim2.new(1, -20, 0, 28)
+				textLabel.Position = UDim2.new(0, 10, 0, 4)
+				textLabel.BackgroundTransparency = 1
+				textLabel.Font = Enum.Font.GothamBold
+				textLabel.TextSize = 13
+				textLabel.TextColor3 = Color3.fromRGB(120, 240, 255) -- Cyan sáng
+				textLabel.TextXAlignment = Enum.TextXAlignment.Left
+				textLabel.Text = "⚡ BRAKYO HUB - CYAN EDITION"
+				textLabel.Parent = frame
+				
+				local textLabel2 = Instance.new("TextLabel")
+				textLabel2.Name = "StatsLabel"
+				textLabel2.Size = UDim2.new(1, -20, 0, 100)
+				textLabel2.Position = UDim2.new(0, 10, 0, 32)
+				textLabel2.BackgroundColor3 = Color3.fromRGB(15, 35, 45)
+				textLabel2.BackgroundTransparency = 0.6
+				textLabel2.Font = Enum.Font.Code
+				textLabel2.TextSize = 11
+				textLabel2.TextColor3 = Color3.fromRGB(200, 240, 255)
+				textLabel2.TextXAlignment = Enum.TextXAlignment.Left
+				textLabel2.TextYAlignment = Enum.TextYAlignment.Top
+				textLabel2.RichText = true
+				textLabel2.Text = "Loading inspector data..."
+				textLabel2.Parent = frame
+				
+				local uiCorner2 = Instance.new("UICorner")
+				uiCorner2.CornerRadius = UDim.new(0, 6)
+				uiCorner2.Parent = textLabel2
+				
+				local scrollingFrame = Instance.new("ScrollingFrame")
+				scrollingFrame.Name = "LogBox"
+				scrollingFrame.Size = UDim2.new(1, -20, 0, 116)
+				scrollingFrame.Position = UDim2.new(0, 10, 0, 136)
+				scrollingFrame.BackgroundColor3 = Color3.fromRGB(10, 22, 28)
+				scrollingFrame.BackgroundTransparency = 0.5
+				scrollingFrame.BorderSizePixel = 0
+				scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+				scrollingFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+				scrollingFrame.ScrollBarThickness = 4
+				scrollingFrame.Parent = frame
+				
+				local uiCorner3 = Instance.new("UICorner")
+				uiCorner3.CornerRadius = UDim.new(0, 6)
+				uiCorner3.Parent = scrollingFrame
+				
+				local textLabel3 = Instance.new("TextLabel")
+				textLabel3.Name = "LogContent"
+				textLabel3.Size = UDim2.new(1, -8, 1, 0)
+				textLabel3.Position = UDim2.new(0, 4, 0, 4)
+				textLabel3.BackgroundTransparency = 1
+				textLabel3.Font = Enum.Font.Code
+				textLabel3.TextSize = 10
+				textLabel3.TextColor3 = Color3.fromRGB(170, 220, 240)
+				textLabel3.TextXAlignment = Enum.TextXAlignment.Left
+				textLabel3.TextYAlignment = Enum.TextYAlignment.Top
+				textLabel3.AutomaticSize = Enum.AutomaticSize.Y
+				textLabel3.TextWrapped = true
+				textLabel3.RichText = true
+				textLabel3.Text = "<font color=\"#888888\">Logs initialized.</font>"
+				textLabel3.Parent = scrollingFrame
+				
+				local textButton = Instance.new("TextButton")
+				textButton.Size = UDim2.new(0.48, -10, 0, 22)
+				textButton.Position = UDim2.new(0, 10, 0, 258)
+				textButton.BackgroundColor3 = Color3.fromRGB(25, 50, 65)
+				textButton.BackgroundTransparency = 0.3
+				textButton.Font = Enum.Font.GothamBold
+				textButton.TextSize = 11
+				textButton.TextColor3 = Color3.fromRGB(255, 120, 120)
+				textButton.Text = "Clear Logs"
+				textButton.Parent = frame
+				
+				local uiCorner4 = Instance.new("UICorner")
+				uiCorner4.CornerRadius = UDim.new(0, 4)
+				uiCorner4.Parent = textButton
+
+				textButton.MouseButton1Click:Connect(function()
+					tbl5.Logs = {}
+					textLabel3.Text = "<font color=\"#888888\">Logs cleared.</font>"
+				end)
+
+				local textButton2 = Instance.new("TextButton")
+				textButton2.Size = UDim2.new(0.48, -10, 0, 22)
+				textButton2.Position = UDim2.new(0.52, 0, 0, 258)
+				textButton2.BackgroundColor3 = Color3.fromRGB(25, 50, 65)
+				textButton2.BackgroundTransparency = 0.3
+				textButton2.Font = Enum.Font.GothamBold
+				textButton2.TextSize = 11
+				textButton2.TextColor3 = Color3.fromRGB(100, 220, 255)
+				textButton2.Text = "Copy Logs"
+				textButton2.Parent = frame
+				
+				local uiCorner5 = Instance.new("UICorner")
+				uiCorner5.CornerRadius = UDim.new(0, 4)
+				uiCorner5.Parent = textButton2
+
+				textButton2.MouseButton1Click:Connect(function()
+					local tbl6 = {}
+
+					for _, log in ipairs(tbl5.Logs) do
+						local v8 = string.gsub(log, "<[^>]+>", "")
+						table.insert(tbl6, v8)
+					end
+
+					local str = table.concat(tbl6, "\n")
+
+					if setclipboard then
+						setclipboard(str)
+						fn4("Logs copied to clipboard!", "Debug Inspector")
+					end
+				end)
+
+				screenGui.Parent = ok
+				tbl5.Gui = screenGui
+
+				task.spawn(function()
+					while true do
+						if screenGui and screenGui.Enabled then
+							tbl5.FrameCount = tbl5.FrameCount + 1
+							local now = os.clock()
+
+							if now - tbl5.LastFpsUpdate >= 1 then
+								tbl5.Fps = tbl5.FrameCount / (now - tbl5.LastFpsUpdate)
+								tbl5.FrameCount = 0
+								tbl5.LastFpsUpdate = now
+
+								pcall(function()
+									local serverStatsItem = game:GetService("Stats").Network.ServerStatsItem
+									serverStatsItem = serverStatsItem and serverStatsItem["Data Ping"]
+									tbl5.Ping = serverStatsItem and math.round(serverStatsItem:GetValue()) or 0
+								end)
+							end
+
+							textLabel2.Text = string.format([[ <b>STATE:</b> <font color="%s"><b>%s</b></font> | <b>FPS:</b> %d | <b>PING:</b> %dms
+ <b>ACTION:</b> <font color="#FFFFFF">%s</font>
+ <b>TARGET:</b> <font color="#FFD700">%s</font>
+ <b>STATS:</b> <font color="#00FF7F">Claimed: %d</font> | <font color="#FF6B6B">Timeouts: %d</font> | <font color="#FFA500">Retries: %d</font>
+ <b>LOCK OWNER:</b> <font color="#00CED1">%s</font>]], tbl5.CurrentState == "STEALING" and "#00FF7F" or tbl5.CurrentState == "BOSS_FIGHT" and "#FF4500" or tbl5.CurrentState == "BOSS_PORTAL_ENTER" and "#9370DB" or tbl5.CurrentState == "SAKURA_FARM" and "#FF69B4" or tbl5.CurrentState == "PLACE_EGG" and "#6495ED" or tbl5.CurrentState == "TREADMILL" and "#FFD700" or tbl5.CurrentState == "EMERGENCY_SAFEZONE" and "#FF4500" or "#AAAAAA", tbl5.CurrentState, tbl5.Fps, tbl5.Ping, tbl5.SubAction, tbl5.ActiveTarget, tbl5.SuccessClaims or 0, tbl5.Timeouts or 0, tbl5.Retries or 0, tbl4.Movement and tbl4.Movement.GetOwner and tbl4.Movement.GetOwner() or "None")
+
+							if #tbl5.Logs == 0 then
+								textLabel3.Text = "<font color=\"#888888\">No action logs yet...</font>"
+							else
+								textLabel3.Text = table.concat(tbl5.Logs, "\n")
+							end
+						end
+
+						task.wait(0.08)
+					end
+				end)
+
+				return screenGui
+			end
+
+			tbl5.SetVisible = function(enabled2)
+				local v8 = tbl5.CreateGui()
+
+				if v8 then
+					v8.Enabled = enabled2
+				end
+			end
+
+			return tbl5
+		end
+
+		tbl4.DebugInspector = fn9()
+		return tbl4
+	end
+	return fn7()
+end
+
+print("BraKyo Hub loaded with Cyan Theme successfully!")
