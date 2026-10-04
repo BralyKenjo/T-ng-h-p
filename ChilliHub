@@ -1,0 +1,388 @@
+local SAE = "https://api.luarmor.net/files/v4/loaders/d70c93187f4801ff5b907707597a24be.lua"
+local RAP = "https://api.luarmor.net/files/v4/loaders/0dbcaa9e992477523d38a8284d7dbdef.lua"
+local JFA = "https://raw.githubusercontent.com/tienkhanh1/Chilli-Hub-Script/refs/heads/main/JumpForAnimals"
+local SAB = "https://raw.githubusercontent.com/tienkhanh1/spicy/refs/heads/main/Steal-a-Brainrot"
+local MM2 = "https://api.luarmor.net/files/v4/loaders/2bf348894416e1d3deee40be756d42ff.lua"
+local BROOK = "https://api.luarmor.net/files/v4/loaders/89190a03fd337349cef140d576357ba3.lua"
+
+local byGameId = {
+    [10563114921] = SAE,
+    [10035204815] = RAP,
+    [10690360998] = JFA,
+    [7709344486] = SAB,
+    [66654135] = MM2,
+    [1686885941] = BROOK,
+}
+
+local byPlaceId = {
+    [107778070777162] = SAE,
+    [124216119978534] = RAP,
+    [126870639873289] = JFA,
+    [109983668079237] = SAB,
+    [142823291] = MM2,
+    [4924922222] = BROOK,
+}
+
+-- ===== CẤU HÌNH =====
+local KEY_LINK_1 = "https://link4sub.com/uUTo7v0BuB"
+local KEY_LINK_2 = "https://link4m.net/ybSm44t2"
+local KEY_FILE   = "chilli_hub_verified.txt"
+
+local DURATION_KEY     = 24 * 60 * 60   -- Key "BraKyo"  : 24 giờ
+local DURATION_LINK    = 12 * 60 * 60   -- Link getkey  : 12 giờ
+local DURATION_PREMIUM = 365 * 24 * 60 * 60  -- Key "xin10k" : 1 năm (premium)
+
+local VALID_KEY     = "BraKyo"
+local PREMIUM_KEY   = "xin10k"
+-- =====================
+
+-- ===== HỆ THỐNG LƯU TRỮ =====
+local function now()
+    return os.time()
+end
+
+local function loadData()
+    if not (isfile and readfile) then
+        if getgenv then return getgenv().ChilliData end
+        return nil
+    end
+    local ok, data = pcall(function()
+        return isfile(KEY_FILE) and readfile(KEY_FILE)
+    end)
+    if not ok or not data or data == "" then return nil end
+    local ok2, tbl = pcall(function()
+        return game:GetService("HttpService"):JSONDecode(data)
+    end)
+    if ok2 and type(tbl) == "table" then return tbl end
+    return nil
+end
+
+local function saveData(tbl)
+    if getgenv then getgenv().ChilliData = tbl end
+    if writefile then
+        pcall(function()
+            writefile(KEY_FILE, game:GetService("HttpService"):JSONEncode(tbl))
+        end)
+    end
+end
+
+-- Kiểm tra xem còn hiệu lực không
+local function getRemaining()
+    local data = loadData()
+    if not data or not data.expire then return 0 end
+    local left = data.expire - now()
+    if left > 0 then return left end
+    return 0
+end
+
+local function grantAccess(seconds, type)
+    local data = {
+        expire = now() + seconds,
+        type = type or "unknown",
+        start = now()
+    }
+    saveData(data)
+end
+
+local function formatTime(sec)
+    local h = math.floor(sec / 3600)
+    local m = math.floor((sec % 3600) / 60)
+    if h > 24 then
+        local d = math.floor(h / 24)
+        h = h % 24
+        return string.format("%d ngày %d giờ", d, h)
+    end
+    return string.format("%d giờ %d phút", h, m)
+end
+-- =============================
+
+-- Chờ GameId load
+local gameId = game.GameId
+while gameId == 0 and game.PlaceId == 0 do
+    task.wait()
+    gameId = game.GameId
+end
+
+-- Hàm chạy payload gốc
+local function runPayload()
+    local url = byGameId[gameId] or byPlaceId[game.PlaceId]
+    if not url then return end
+
+    for _ = 1, 3 do
+        local ok, source = pcall(game.HttpGet, game, url)
+        if ok and type(source) == "string" and source ~= "" then
+            local chunk = loadstring(source)
+            if chunk then chunk() end
+            return
+        end
+        task.wait(0.5)
+    end
+end
+
+-- Nếu còn hạn -> chạy luôn
+local remaining = getRemaining()
+if remaining > 0 then
+    runPayload()
+    return
+end
+
+-- ===== UI GET KEY =====
+local parentGui
+if gethui then
+    parentGui = gethui()
+elseif syn and syn.protect_gui then
+    local sg = Instance.new("ScreenGui")
+    syn.protect_gui(sg)
+    parentGui = game:GetService("CoreGui")
+else
+    parentGui = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+end
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ChilliHubKeyUI"
+ScreenGui.ResetOnSpawn = false
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+ScreenGui.IgnoreGuiInset = true
+
+if syn and syn.protect_gui then
+    syn.protect_gui(ScreenGui)
+end
+
+local ok = pcall(function() ScreenGui.Parent = parentGui end)
+if not ok or not ScreenGui.Parent then
+    ScreenGui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+end
+
+-- Khung chính
+local Frame = Instance.new("Frame")
+Frame.Size = UDim2.new(0, 440, 0, 380)
+Frame.Position = UDim2.new(0.5, -220, 0.5, -190)
+Frame.BackgroundColor3 = Color3.fromRGB(25, 25, 30)
+Frame.BorderSizePixel = 0
+Frame.Parent = ScreenGui
+
+local Corner = Instance.new("UICorner")
+Corner.CornerRadius = UDim.new(0, 12)
+Corner.Parent = Frame
+
+local Stroke = Instance.new("UIStroke")
+Stroke.Color = Color3.fromRGB(255, 80, 80)
+Stroke.Thickness = 2
+Stroke.Parent = Frame
+
+-- Kéo thả
+local dragging, dragStart, startPos
+Title.MouseButton1Down -- placeholder
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 55)
+Title.BackgroundTransparency = 1
+Title.Text = "🌶️ Chilli Hub - Get Key"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 22
+Title.Font = Enum.Font.GothamBold
+Title.Parent = Frame
+
+Title.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        dragging = true
+        dragStart = input.Position
+        startPos = Frame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+        local delta = input.Position - dragStart
+        Frame.Position = UDim2.new(
+            startPos.X.Scale, startPos.X.Offset + delta.X,
+            startPos.Y.Scale, startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+local SubTitle = Instance.new("TextLabel")
+SubTitle.Size = UDim2.new(1, 0, 0, 25)
+SubTitle.Position = UDim2.new(0, 0, 0, 50)
+SubTitle.BackgroundTransparency = 1
+SubTitle.Text = "Nhập key hoặc lấy key từ link bên dưới"
+SubTitle.TextColor3 = Color3.fromRGB(180, 180, 180)
+SubTitle.TextSize = 13
+SubTitle.Font = Enum.Font.Gotham
+SubTitle.Parent = Frame
+
+-- Ô nhập key
+local Input = Instance.new("TextBox")
+Input.Size = UDim2.new(0.85, 0, 0, 42)
+Input.Position = UDim2.new(0.075, 0, 0, 90)
+Input.BackgroundColor3 = Color3.fromRGB(45, 45, 52)
+Input.BorderSizePixel = 0
+Input.TextColor3 = Color3.fromRGB(255, 255, 255)
+Input.PlaceholderText = "Nhập key tại đây..."
+Input.PlaceholderColor3 = Color3.fromRGB(130, 130, 130)
+Input.Text = ""
+Input.Font = Enum.Font.Gotham
+Input.TextSize = 15
+Input.ClearTextOnFocus = false
+Input.Parent = Frame
+
+local InputCorner = Instance.new("UICorner")
+InputCorner.CornerRadius = UDim.new(0, 8)
+InputCorner.Parent = Input
+
+-- Nút Xác minh key
+local SubmitBtn = Instance.new("TextButton")
+SubmitBtn.Size = UDim2.new(0.85, 0, 0, 42)
+SubmitBtn.Position = UDim2.new(0.075, 0, 0, 140)
+SubmitBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 90)
+SubmitBtn.BorderSizePixel = 0
+SubmitBtn.Text = "✅ Xác minh Key"
+SubmitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+SubmitBtn.Font = Enum.Font.GothamBold
+SubmitBtn.TextSize = 15
+SubmitBtn.Parent = Frame
+
+local SubmitCorner = Instance.new("UICorner")
+SubmitCorner.CornerRadius = UDim.new(0, 8)
+SubmitCorner.Parent = SubmitBtn
+
+-- Divider text
+local OrLabel = Instance.new("TextLabel")
+OrLabel.Size = UDim2.new(0.85, 0, 0, 25)
+OrLabel.Position = UDim2.new(0.075, 0, 0, 190)
+OrLabel.BackgroundTransparency = 1
+OrLabel.Text = "─── Hoặc lấy key miễn phí ───"
+OrLabel.TextColor3 = Color3.fromRGB(150, 150, 150)
+OrLabel.TextSize = 12
+OrLabel.Font = Enum.Font.Gotham
+OrLabel.Parent = Frame
+
+-- Nút 1: link4sub
+local Btn1 = Instance.new("TextButton")
+Btn1.Size = UDim2.new(0.85, 0, 0, 42)
+Btn1.Position = UDim2.new(0.075, 0, 0, 220)
+Btn1.BackgroundColor3 = Color3.fromRGB(0, 120, 200)
+Btn1.BorderSizePixel = 0
+Btn1.Text = "🔗 Lấy Key - link4sub"
+Btn1.TextColor3 = Color3.fromRGB(255, 255, 255)
+Btn1.Font = Enum.Font.GothamBold
+Btn1.TextSize = 15
+Btn1.Parent = Frame
+
+local C1 = Instance.new("UICorner")
+C1.CornerRadius = UDim.new(0, 8)
+C1.Parent = Btn1
+
+-- Nút 2: link4m
+local Btn2 = Instance.new("TextButton")
+Btn2.Size = UDim2.new(0.85, 0, 0, 42)
+Btn2.Position = UDim2.new(0.075, 0, 0, 270)
+Btn2.BackgroundColor3 = Color3.fromRGB(150, 80, 200)
+Btn2.BorderSizePixel = 0
+Btn2.Text = "🔗 Lấy Keyor - link4m"
+Btn2.TextColor3 = Color3.fromRGB(255, 255, 255)
+Btn2.Font = Enum.Font.GothamBold
+Btn2.TextSize = 15
+Btn2.Parent = Frame
+
+local C2 = Instance.new("UICner")
+C2.CornerRadius = UDim.new(0, 8)
+C2.Parent = Btn2
+
+-- Status label
+local Status = Instance.new("TextLabel")
+Status.Size = UDim2.new(0.85, 0, 0, 30)
+Status.Position = UDim2.new(0.075, 0, 0, 320)
+Status.BackgroundTransparency = 1
+Status.Text = ""
+Status.TextColor3 = Color3.fromRGB(255, 220, 100)
+Status.TextSize = 13
+Status.Font = Enum.Font.GothamMedium
+Status.TextWrapped = true
+Status.Parent = Frame
+
+-- Đóng UI button (góc phải)
+local CloseBtn = Instance.new("TextButton")
+CloseBtn.Size = UDim2.new(0, 30, 0, 30)
+CloseBtn.Position = UDim2.new(1, -40, 0, 15)
+CloseBtn.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
+CloseBtn.BorderSizePixel = 0
+CloseBtn.Text = "✕"
+CloseBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseBtn.Font = Enum.Font.GothamBold
+CloseBtn.TextSize = 16
+CloseBtn.Parent = Frame
+
+local CC = Instance.new("UICorner")
+CC.CornerRadius = UDim.new(0, 8)
+CC.Parent = CloseBtn
+
+CloseBtn.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+-- ===== XỬ LÝ SỰ KIỆN =====
+
+-- Nhập key -> kiểm tra
+SubmitBtn.MouseButton1Click:Connect(function()
+    local entered = Input.Text
+    if entered == VALID_KEY then
+        SubmitBtn.Text = "✅ Key hợp lệ - 24 giờ"
+        Status.Text = "Đã kích hoạt 24 giờ!"
+        Status.TextColor3 = Color3.fromRGB(100, 255, 150)
+        grantAccess(DURATION_KEY, "key")
+        task.wait(1)
+        ScreenGui:Destroy()
+        runPayload()
+    elseif entered == PREMIUM_KEY then
+        SubmitBtn.Text = "👑 Premium - 1 năm"
+        Status.Text = "Chào mừng Premium! Đã kích hoạt 1 năm."
+        Status.TextColor3 = Color3.fromRGB(255, 215, 0)
+        grantAccess(DURATION_PREMIUM, "premium")
+        task.wait(1)
+        ScreenGui:Destroy()
+        runPayload()
+    else
+        SubmitBtn.Text = "❌ Key không đúng"
+        Status.Text = "Key sai hoặc không tồn tại, thử lại!"
+        Status.TextColor3 = Color3.fromRGB(255, 100, 100)
+        task.wait(1.5)
+        SubmitBtn.Text = "✅ Xác minh Key"
+    end
+end)
+
+-- Nhấn Enter trong ô key
+Input.FocusLost:Connect(function(enterPressed)
+    if enterPressed then
+        SubmitBtn:FireEvent -- noop
+        SubmitBtn.MouseButton1Click:Fire -- noop
+    end
+end)
+
+-- Nút lấy key (12 giờ)
+local function handleGetKey(link, btn, name)
+    if setclipboard then
+        setclipboard(link)
+        btn.Text = "✅ Đã copy " .. name .. "! (12 giờ)"
+    else
+        btn.Text = "📋 " .. link
+    end
+    Status.Text = "Đã kích hoạt 12 giờ qua " .. name
+    Status.TextColor3 = Color3.fromRGB(100, 200, 255)
+    grantAccess(DURATION_LINK, "link_" .. name)
+    task.wait(1.2)
+    ScreenGui:Destroy()
+    runPayload()
+end
+
+Btn1.MouseButton1Click:Connect(function()
+    handleGetKey(KEY_LINK_1, Btn1, "link4sub")
+end)
+
+Btn2.MouseButton1Click:Connect(function()
+    handleGetKey(KEY_LINK_2, Btn2, "link4m")
+end)
