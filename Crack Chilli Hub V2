@@ -1,0 +1,128 @@
+-- =========================================================================
+--   🔷 BRAKYO HUB - STEAL AN EGG 🥚
+--   KEYLESS EDITION · BYPASSED BY ZANKYO
+-- =========================================================================
+
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local CoreGui = game:GetService("CoreGui")
+local Players = game:GetService("Players")
+
+local LocalPlayer = Players.LocalPlayer
+local TargetScriptUrl = "https://raw.githubusercontent.com/robvxs24/freemium/refs/heads/main/chillihubv2.lua"
+
+-- =========================================================================
+--   WATERMARK "ĐƯỢC BYPASS BỞI ZANKYO"
+-- =========================================================================
+
+local function ShowBypassWatermark()
+    if CoreGui:FindFirstChild("BraKyoHub_Watermark") then
+        CoreGui.BraKyoHub_Watermark:Destroy()
+    end
+    if LocalPlayer:FindFirstChild("PlayerGui") and LocalPlayer.PlayerGui:FindFirstChild("BraKyoHub_Watermark") then
+        LocalPlayer.PlayerGui.BraKyoHub_Watermark:Destroy()
+    end
+
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "BraKyoHub_Watermark"
+    ScreenGui.ResetOnSpawn = false
+    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    ScreenGui.IgnoreGuiInset = true
+    pcall(function() ScreenGui.Parent = CoreGui end)
+    if not ScreenGui.Parent then ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
+
+    -- Khung chính
+    local Frame = Instance.new("Frame")
+    Frame.AnchorPoint = Vector2.new(1, 0)
+    Frame.Size = UDim2.new(0, 240, 0, 34)
+    Frame.Position = UDim2.new(1, -18, 0, 18)
+    Frame.BackgroundColor3 = Color3.fromRGB(5, 14, 18)
+    Frame.BackgroundTransparency = 0.15
+    Frame.BorderSizePixel = 0
+    Frame.ZIndex = 100
+    Frame.Parent = ScreenGui
+    Instance.new("UICorner", Frame).CornerRadius = UDim.new(0, 10)
+
+    local Stroke = Instance.new("UIStroke", Frame)
+    Stroke.Thickness = 1.4
+    Stroke.Color = Color3.fromRGB(6, 182, 212)
+
+    -- Nhịp thở cho viền
+    RunService.RenderStepped:Connect(function()
+        if not Frame.Parent then return end
+        local val = (math.sin(tick() * 2.4) + 1) / 2
+        local r = (30 + math.floor(val * 45)) / 255
+        local g = (150 + math.floor(val * 60)) / 255
+        local b = (180 + math.floor(val * 60)) / 255
+        Stroke.Color = Color3.new(r, g, b)
+    end)
+
+    -- Icon
+    local Icon = Instance.new("TextLabel")
+    Icon.Size = UDim2.new(0, 26, 1, 0)
+    Icon.Position = UDim2.new(0, 6, 0, 0)
+    Icon.BackgroundTransparency = 1
+    Icon.Text = "🔷"
+    Icon.TextSize = 15
+    Icon.ZIndex = 101
+    Icon.Parent = Frame
+
+    -- Text watermark
+    local Text = Instance.new("TextLabel")
+    Text.Size = UDim2.new(1, -36, 1, 0)
+    Text.Position = UDim2.new(0, 34, 0, 0)
+    Text.BackgroundTransparency = 1
+    Text.Text = "Được bypass bởi ZanKyo"
+    Text.TextColor3 = Color3.fromRGB(165, 243, 252)
+    Text.TextSize = 12
+    Text.Font = Enum.Font.GothamBold
+    Text.TextXAlignment = Enum.TextXAlignment.Left
+    Text.TextYAlignment = Enum.TextYAlignment.Center
+    Text.ZIndex = 101
+    Text.Parent = Frame
+
+    -- Hiệu ứng trượt vào
+    Frame.Position = UDim2.new(1, 80, 0, 18)
+    TweenService:Create(Frame, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+        Position = UDim2.new(1, -18, 0, 18)
+    }):Play()
+
+    -- Nhấp nháy nhẹ text
+    task.spawn(function()
+        while Frame.Parent do
+            task.wait(1.5)
+            if not Frame.Parent then break end
+            local fade = TweenService:Create(Text, TweenInfo.new(0.7), { TextTransparency = 0.4 })
+            fade:Play()
+            fade.Completed:Wait()
+            if not Frame.Parent then break end
+            local fade2 = TweenService:Create(Text, TweenInfo.new(0.7), { TextTransparency = 0 })
+            fade2:Play()
+            fade2.Completed:Wait()
+        end
+    end)
+end
+
+-- =========================================================================
+--   LOAD PAYLOAD (chillihubv2.lua - đã có lớp dịch + màu)
+-- =========================================================================
+
+local function LaunchPayload()
+    task.spawn(function()
+        local ok, err = pcall(function()
+            loadstring(game:HttpGet(TargetScriptUrl))()
+        end)
+        if not ok then
+            warn("[BraKyo Hub] Lỗi load payload:", err)
+        end
+    end)
+end
+
+-- =========================================================================
+--   CHẠY
+-- =========================================================================
+
+ShowBypassWatermark()
+LaunchPayload()
+
+print("[BraKyo Hub] Loaded · Bypassed by ZanKyo")
